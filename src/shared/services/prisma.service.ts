@@ -5,6 +5,8 @@ import { PrismaClient } from 'generated/prisma'
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
     super({
+      // MEMO: For debug: 
+      // log: ['query', 'warn', 'error']
       log: ['info'],
     })
   }

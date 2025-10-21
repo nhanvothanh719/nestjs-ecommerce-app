@@ -18,7 +18,7 @@ export class AuthenticationGuard implements CanActivate {
     this.authTypeGuardMap = {
       [AuthType.Bearer]: this.accessTokenGuard,
       [AuthType.ApiKey]: this.apiKeyGuard,
-      [AuthType.None]: { canActivate: () => true },
+      [AuthType.None]: { canActivate: (_context: ExecutionContext) => true },
     }
   }
 

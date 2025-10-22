@@ -1,4 +1,5 @@
 import { ConflictException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common'
+import { RegisterRequestBodyDTO } from 'src/routes/auth/auth.dto'
 import { RoleService } from 'src/routes/auth/role.service'
 import { isPrismaNotFoundError, isPrismaUniqueConstraintFailedError } from 'src/shared/helpers'
 import { HashingService } from 'src/shared/services/hashing.service'
@@ -14,7 +15,7 @@ export class AuthService {
     private readonly roleService: RoleService,
   ) {}
 
-  async register(body: any) {
+  async register(body: RegisterRequestBodyDTO) {
     try {
       const { password, email, name, phoneNumber } = body
       const clientRoleId = await this.roleService.getClientRoleId()

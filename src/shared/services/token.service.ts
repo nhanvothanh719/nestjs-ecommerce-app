@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { JwtService, JwtSignOptions } from '@nestjs/jwt'
 import envConfig from 'src/shared/config'
 import ms from 'ms'
+import { TokenPayload } from 'src/shared/types/jwt.type'
 
 const JWT_ALGORITHM = 'HS256'
 
@@ -27,13 +28,13 @@ export class TokenService {
     return this.jwtService.signAsync(payload, jwtSignOptions)
   }
 
-  verifyAccessToken(token: string) {
+  verifyAccessToken(token: string): Promise<TokenPayload> {
     return this.jwtService.verifyAsync(token, {
       secret: envConfig.ACCESS_TOKEN_SECRET,
     })
   }
 
-  verifyRefreshToken(token: string) {
+  verifyRefreshToken(token: string): Promise<TokenPayload> {
     return this.jwtService.verifyAsync(token, {
       secret: envConfig.REFRESH_TOKEN_SECRET,
     })

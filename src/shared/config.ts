@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import dotenv from 'dotenv'
-import z from 'zod'
+import * as z from 'zod'
 
 // Check `.env` file existence
 if (!fs.existsSync(path.resolve('.env'))) {

@@ -41,7 +41,7 @@ const main = async () => {
       email: envConfig.ADMIN_USER_EMAIL,
       password: hashedPassword,
       name: envConfig.ADMIN_USER_NAME,
-      phoneNumber: envConfig.ADMIN_USER_PHONENUMBER,
+      phoneNumber: envConfig.ADMIN_USER_PHONE_NUMBER,
       roleId: adminRole.id,
     },
   })

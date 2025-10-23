@@ -10,6 +10,7 @@ import { TokenService } from 'src/shared/services/token.service'
 import ms from 'ms'
 import envConfig from 'src/shared/config'
 import { VerificationCodeGenre } from 'src/shared/constants/auth.constant'
+import { EmailService } from 'src/shared/services/email.service'
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,7 @@ export class AuthService {
     private readonly roleService: RoleService,
     private readonly authRepository: AuthRepository,
     private readonly sharedUserRepository: SharedUserRepository,
+    private readonly emailService: EmailService,
   ) {}
 
   async register(body: RegisterRequestBodyType) {
@@ -177,6 +179,18 @@ export class AuthService {
       code,
       expiresAt: addMilliseconds(new Date(), ms(envConfig.OTP_EXPIRES_IN as ms.StringValue)),
     })
+
+    // Send email with verification code
+    const { error } = await this.emailService.sendVerificationCodeMail({ email, code: verificationCode.code })
+    if (error) {
+      console.error('>>> Send mail error: ', error)
+      throw new UnprocessableEntityException([
+        {
+          path: 'code',
+          message: 'Fail to send email with verification code',
+        },
+      ])
+    }
 
     return verificationCode
   }

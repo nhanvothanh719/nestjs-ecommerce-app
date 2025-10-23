@@ -24,6 +24,7 @@ const envConfigSchema = z.object({
   ADMIN_USER_PASSWORD: z.string(),
   ADMIN_USER_PHONE_NUMBER: z.string(),
   OTP_EXPIRES_IN: z.string(),
+  RESEND_API_KEY: z.string().min(1),
 })
 const parsedEnvConfig = envConfigSchema.safeParse(process.env)
 

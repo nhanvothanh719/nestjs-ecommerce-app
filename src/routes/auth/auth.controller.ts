@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common'
 import { ZodResponse } from 'nestjs-zod'
-import { RegisterRequestBodyDTO, RegisterResponseDTO } from 'src/routes/auth/auth.dto'
+import { RegisterRequestBodyDTO, RegisterResponseDTO, SendOTPRequestBodyDTO } from 'src/routes/auth/auth.dto'
 import { AuthService } from 'src/routes/auth/auth.service'
 
 @Controller('auth')
@@ -32,4 +32,10 @@ export class AuthController {
   //   const result = await this.authService.logout(body.refreshToken as string)
   //   return result
   // }
+
+  @Post('otp')
+  async sendOTP(@Body() body: SendOTPRequestBodyDTO) {
+    const result = await this.authService.sendOTP(body)
+    return result
+  }
 }

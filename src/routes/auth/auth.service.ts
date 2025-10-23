@@ -1,10 +1,15 @@
 import { ConflictException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common'
-import { RegisterRequestBodyType } from 'src/routes/auth/auth.model'
+import { addMilliseconds } from 'date-fns'
+import { RegisterRequestBodyType, SendOTPRequestBodyType } from 'src/routes/auth/auth.model'
 import { AuthRepository } from 'src/routes/auth/auth.repo'
 import { RoleService } from 'src/routes/auth/role.service'
-import { isPrismaNotFoundError, isPrismaUniqueConstraintFailedError } from 'src/shared/helpers'
+import { generateOTP, isPrismaNotFoundError, isPrismaUniqueConstraintFailedError } from 'src/shared/helpers'
+import { SharedUserRepository } from 'src/shared/repositories/user.repo'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { TokenService } from 'src/shared/services/token.service'
+import ms from 'ms'
+import envConfig from 'src/shared/config'
+import { VerificationCodeGenre } from 'src/shared/constants/auth.constant'
 
 @Injectable()
 export class AuthService {
@@ -13,11 +18,35 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly roleService: RoleService,
     private readonly authRepository: AuthRepository,
+    private readonly sharedUserRepository: SharedUserRepository,
   ) {}
 
   async register(body: RegisterRequestBodyType) {
     try {
-      const { password, email, name, phoneNumber } = body
+      const { password, email, name, phoneNumber, code } = body
+
+      // Check verification code
+      const verificationCode = await this.authRepository.findUniqueVerificationCode({
+        email,
+        code,
+        type: VerificationCodeGenre.REGISTER,
+      })
+      if (!verificationCode) {
+        throw new UnprocessableEntityException([
+          {
+            path: 'code',
+            message: 'Invalid OTP code',
+          },
+        ])
+      } else if (verificationCode.expiresAt < new Date()) {
+        throw new UnprocessableEntityException([
+          {
+            path: 'code',
+            message: 'OTP code is expired',
+          },
+        ])
+      }
+
       const clientRoleId = await this.roleService.getClientRoleId()
       const hashedPassword = await this.hashingService.hash(password)
       const user = await this.authRepository.createUser({
@@ -29,7 +58,14 @@ export class AuthService {
       })
       return user
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) throw new ConflictException('Email already exists')
+      if (isPrismaUniqueConstraintFailedError(error)) {
+        throw new UnprocessableEntityException([
+          {
+            path: 'email',
+            message: 'Email already exists',
+          },
+        ])
+      }
       throw error
     }
   }
@@ -121,4 +157,27 @@ export class AuthService {
   //     throw new UnauthorizedException()
   //   }
   // }
+
+  async sendOTP(body: SendOTPRequestBodyType) {
+    const { email, type } = body
+    const user = await this.sharedUserRepository.findUnique({ email })
+    if (user) {
+      throw new UnprocessableEntityException([
+        {
+          path: 'email',
+          message: 'Email already exists',
+        },
+      ])
+    }
+
+    const code = generateOTP()
+    const verificationCode = await this.authRepository.createVerificationCode({
+      email,
+      type,
+      code,
+      expiresAt: addMilliseconds(new Date(), ms(envConfig.OTP_EXPIRES_IN as ms.StringValue)),
+    })
+
+    return verificationCode
+  }
 }

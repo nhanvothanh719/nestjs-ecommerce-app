@@ -23,6 +23,7 @@ const envConfigSchema = z.object({
   ADMIN_USER_EMAIL: z.string(),
   ADMIN_USER_PASSWORD: z.string(),
   ADMIN_USER_PHONE_NUMBER: z.string(),
+  OTP_EXPIRES_IN: z.string(),
 })
 const parsedEnvConfig = envConfigSchema.safeParse(process.env)
 

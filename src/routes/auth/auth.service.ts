@@ -29,7 +29,7 @@ export class AuthService {
       })
       return user
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) throw new ConflictException('Email has already existed')
+      if (isPrismaUniqueConstraintFailedError(error)) throw new ConflictException('Email already exists')
       throw error
     }
   }

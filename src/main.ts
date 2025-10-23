@@ -5,8 +5,6 @@ import { TransformResponseInterceptor } from 'src/shared/interceptors/transform.
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
-  app.useGlobalInterceptors(new TransformResponseInterceptor())
-
   await app.listen(process.env.PORT ?? 3000)
 }
 bootstrap()

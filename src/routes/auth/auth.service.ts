@@ -33,6 +33,7 @@ export class AuthService {
           totpSecret: true,
         },
       })
+
       return user
     } catch (error) {
       if (isPrismaUniqueConstraintFailedError(error)) throw new ConflictException('Email has already existed')

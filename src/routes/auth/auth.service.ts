@@ -23,6 +23,7 @@ import envConfig from 'src/shared/config'
 import { VerificationCodeGenre } from 'src/shared/constants/auth.constant'
 import { EmailService } from 'src/shared/services/email.service'
 import { AccessTokenPayloadCreate } from 'src/shared/types/jwt.type'
+import { ResponseMessageType } from 'src/shared/models/response.model'
 
 @Injectable()
 export class AuthService {
@@ -121,7 +122,7 @@ export class AuthService {
     return tokens
   }
 
-  async logout(refreshToken: string) {
+  async logout(refreshToken: string): Promise<ResponseMessageType> {
     try {
       // Verify refresh token
       await this.tokenService.verifyRefreshToken(refreshToken)
@@ -207,7 +208,7 @@ export class AuthService {
     }
   }
 
-  async sendOTP(body: SendOTPRequestBodyType) {
+  async sendOTP(body: SendOTPRequestBodyType): Promise<ResponseMessageType> {
     const { email, type } = body
     const user = await this.sharedUserRepository.findUnique({ email })
     if (user) {
@@ -242,6 +243,6 @@ export class AuthService {
       ])
     }
 
-    return verificationCode
+    return { message: 'Send verification code successfully' }
   }
 }

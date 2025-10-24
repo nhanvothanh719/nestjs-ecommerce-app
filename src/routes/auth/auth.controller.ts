@@ -56,6 +56,7 @@ export class AuthController {
   }
 
   @Post('otp')
+  @ZodResponse({ type: ResponseMessageDTO })
   async sendOTP(@Body() body: SendOTPRequestBodyDTO) {
     const result = await this.authService.sendOTP(body)
     return result

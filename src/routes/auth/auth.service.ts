@@ -76,8 +76,6 @@ export class AuthService {
   async login(body: LoginRequestBodyType & { ip: string; userAgent: string }) {
     const { email, password, ip, userAgent } = body
 
-    console.log(body)
-
     const user = await this.authRepository.findUniqueUserWithRoleIncluded({ email })
 
     if (!user)

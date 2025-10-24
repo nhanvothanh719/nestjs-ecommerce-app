@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { DeviceType, RegisterRequestBodyType, RoleType, VerificationCodeType } from 'src/routes/auth/auth.model'
+import {
+  DeviceType,
+  RefreshTokenType,
+  RegisterRequestBodyType,
+  RoleType,
+  VerificationCodeType,
+} from 'src/routes/auth/auth.model'
 import { VerificationCodeGenreType } from 'src/shared/constants/auth.constant'
 import { UserType } from 'src/shared/models/user.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
@@ -8,7 +14,7 @@ import { PrismaService } from 'src/shared/services/prisma.service'
 export class AuthRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createUser(
+  createUser(
     user: Omit<RegisterRequestBodyType, 'confirmPassword' | 'code'> & Pick<UserType, 'roleId'>,
   ): Promise<Omit<UserType, 'password' | 'totpSecret'>> {
     return this.prismaService.user.create({
@@ -20,7 +26,7 @@ export class AuthRepository {
     })
   }
 
-  async createVerificationCode(
+  createVerificationCode(
     payload: Pick<VerificationCodeType, 'email' | 'type' | 'code' | 'expiresAt'>,
   ): Promise<VerificationCodeType> {
     return this.prismaService.verificationCode.upsert({
@@ -35,7 +41,7 @@ export class AuthRepository {
     })
   }
 
-  async findUniqueVerificationCode(
+  findUniqueVerificationCode(
     uniqueObject: { email: string } | { id: number } | { email: string; code: string; type: VerificationCodeGenreType },
   ): Promise<VerificationCodeType | null> {
     return this.prismaService.verificationCode.findUnique({
@@ -43,7 +49,12 @@ export class AuthRepository {
     })
   }
 
-  async createRefreshToken(data: { token: string; userId: number; expiresAt: Date; deviceId: number }) {
+  createRefreshToken(data: {
+    token: string
+    userId: number
+    expiresAt: Date
+    deviceId: number
+  }): Promise<RefreshTokenType> {
     return this.prismaService.refreshToken.create({ data })
   }
 
@@ -53,7 +64,7 @@ export class AuthRepository {
     return this.prismaService.device.create({ data })
   }
 
-  async findUniqueUserWithRoleIncluded(
+  findUniqueUserWithRoleIncluded(
     uniqueObject: { id: number } | { email: string },
   ): Promise<(UserType & { role: RoleType }) | null> {
     return this.prismaService.user.findUnique({

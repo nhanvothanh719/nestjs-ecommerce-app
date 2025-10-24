@@ -33,8 +33,8 @@ export const VerificationCodeSchema = z.object({
   email: z.email(),
   code: z.string().length(6),
   type: z.enum([VerificationCodeGenre.REGISTER, VerificationCodeGenre.FORGOT_PASSWORD]),
-  expiresAt: z.date(),
   createdAt: z.date(),
+  expiresAt: z.date(),
 })
 
 export const SendOTPRequestBodySchema = VerificationCodeSchema.pick({
@@ -42,7 +42,53 @@ export const SendOTPRequestBodySchema = VerificationCodeSchema.pick({
   type: true,
 }).strict()
 
+export const LoginRequestBodySchema = UserSchema.pick({
+  email: true,
+  password: true,
+}).strict()
+
+export const LoginResponseSchema = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+})
+
+export const RefreshTokenRequestBodySchema = z
+  .object({
+    refreshToken: z.string(),
+  })
+  .strict()
+
+export const RefreshTokenResponseSchema = LoginResponseSchema
+
+export const DeviceSchema = z.object({
+  id: z.number(),
+  userId: z.number(),
+  userAgent: z.string(),
+  ip: z.string(),
+  isActive: z.boolean(),
+  lastActive: z.date(),
+  createdAt: z.date(),
+})
+
+export const RoleSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  description: z.string(),
+  isActive: z.boolean(),
+  createdByUserId: z.number().nullable(),
+  updatedByUserId: z.number().nullable(),
+  deletedAt: z.date().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+})
+
 export type RegisterRequestBodyType = z.infer<typeof RegisterRequestBodySchema>
 export type RegisterResponseType = z.infer<typeof RegisterResponseSchema>
 export type VerificationCodeType = z.infer<typeof VerificationCodeSchema>
 export type SendOTPRequestBodyType = z.infer<typeof SendOTPRequestBodySchema>
+export type LoginRequestBodyType = z.infer<typeof LoginRequestBodySchema>
+export type LoginResponseType = z.infer<typeof LoginResponseSchema>
+export type RefreshTokenRequestBodyType = z.infer<typeof RefreshTokenRequestBodySchema>
+export type RefreshTokenResponseType = z.infer<typeof RefreshTokenResponseSchema>
+export type DeviceType = z.infer<typeof DeviceSchema>
+export type RoleType = z.infer<typeof RoleSchema>

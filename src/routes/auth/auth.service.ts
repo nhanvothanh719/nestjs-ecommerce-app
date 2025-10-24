@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common'
 import { addMilliseconds } from 'date-fns'
-import { RegisterRequestBodyType, SendOTPRequestBodyType } from 'src/routes/auth/auth.model'
+import { LoginRequestBodyType, RegisterRequestBodyType, SendOTPRequestBodyType } from 'src/routes/auth/auth.model'
 import { AuthRepository } from 'src/routes/auth/auth.repo'
 import { RoleService } from 'src/routes/auth/role.service'
 import { generateOTP, isPrismaNotFoundError, isPrismaUniqueConstraintFailedError } from 'src/shared/helpers'
@@ -11,6 +11,7 @@ import ms from 'ms'
 import envConfig from 'src/shared/config'
 import { VerificationCodeGenre } from 'src/shared/constants/auth.constant'
 import { EmailService } from 'src/shared/services/email.service'
+import { AccessTokenPayloadCreate } from 'src/shared/types/jwt.type'
 
 @Injectable()
 export class AuthService {
@@ -72,29 +73,44 @@ export class AuthService {
     }
   }
 
-  // async login(body: any) {
-  //   const { email, password } = body
+  async login(body: LoginRequestBodyType & { ip: string; userAgent: string }) {
+    const { email, password, ip, userAgent } = body
 
-  //   const user = await this.prismaService.user.findUnique({
-  //     where: {
-  //       email,
-  //     },
-  //   })
+    console.log(body)
 
-  //   if (!user) throw new UnauthorizedException('Account does not exist')
+    const user = await this.authRepository.findUniqueUserWithRoleIncluded({ email })
 
-  //   const isCorrectPassword = await this.hashingService.compare(password, user.password)
-  //   if (!isCorrectPassword)
-  //     throw new UnprocessableEntityException([
-  //       {
-  //         field: 'password',
-  //         error: 'Incorrect password',
-  //       },
-  //     ])
+    if (!user)
+      throw new UnprocessableEntityException([
+        {
+          path: 'email',
+          message: 'Email does not exist',
+        },
+      ])
 
-  //   const tokens = await this.generateAccessAndRefreshTokens({ userId: user.id })
-  //   return tokens
-  // }
+    const isCorrectPassword = await this.hashingService.compare(password, user.password)
+    if (!isCorrectPassword)
+      throw new UnprocessableEntityException([
+        {
+          path: 'password',
+          message: 'Incorrect password',
+        },
+      ])
+
+    const device = await this.authRepository.createDevice({
+      userId: user.id,
+      userAgent,
+      ip,
+    })
+
+    const tokens = await this.generateAccessAndRefreshTokens({
+      userId: user.id,
+      deviceId: device.id,
+      roleId: user.roleId,
+      roleName: user.role.name,
+    })
+    return tokens
+  }
 
   // async logout(refreshToken: string) {
   //   try {
@@ -117,25 +133,24 @@ export class AuthService {
   //   }
   // }
 
-  // async generateAccessAndRefreshTokens(payload: { userId: number }) {
-  //   // Generate access and refresh token
-  //   const [accessToken, refreshToken] = await Promise.all([
-  //     this.tokenService.signAccessToken(payload),
-  //     this.tokenService.signRefreshToken(payload),
-  //   ])
+  async generateAccessAndRefreshTokens({ userId, deviceId, roleId, roleName }: AccessTokenPayloadCreate) {
+    // Generate access and refresh token
+    const [accessToken, refreshToken] = await Promise.all([
+      this.tokenService.signAccessToken({ userId, deviceId, roleId, roleName }),
+      this.tokenService.signRefreshToken({ userId }),
+    ])
 
-  //   // Store refresh token in db
-  //   const decodedRefreshToken = await this.tokenService.verifyRefreshToken(refreshToken)
-  //   await this.prismaService.refreshToken.create({
-  //     data: {
-  //       token: refreshToken,
-  //       userId: payload.userId,
-  //       expiresAt: new Date(decodedRefreshToken.exp * 1000),
-  //     },
-  //   })
+    // Store refresh token in db
+    const decodedRefreshToken = await this.tokenService.verifyRefreshToken(refreshToken)
+    await this.authRepository.createRefreshToken({
+      token: refreshToken,
+      userId,
+      expiresAt: new Date(decodedRefreshToken.exp * 1000),
+      deviceId: 1,
+    })
 
-  //   return { accessToken, refreshToken }
-  // }
+    return { accessToken, refreshToken }
+  }
 
   // async refreshToken(refreshToken: string) {
   //   try {

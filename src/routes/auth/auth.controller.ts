@@ -1,7 +1,13 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common'
+import { Body, Controller, HttpCode, Ip, Post } from '@nestjs/common'
 import { ZodResponse } from 'nestjs-zod'
-import { RegisterRequestBodyDTO, RegisterResponseDTO, SendOTPRequestBodyDTO } from 'src/routes/auth/auth.dto'
+import {
+  LoginRequestBodyDTO,
+  RegisterRequestBodyDTO,
+  RegisterResponseDTO,
+  SendOTPRequestBodyDTO,
+} from 'src/routes/auth/auth.dto'
 import { AuthService } from 'src/routes/auth/auth.service'
+import { UserAgent } from 'src/shared/decorators/user-agent.decorator'
 
 @Controller('auth')
 export class AuthController {
@@ -14,11 +20,17 @@ export class AuthController {
     return result
   }
 
-  // @Post('login')
-  // async login(@Body() body: any) {
-  //   const result = await this.authService.login(body)
-  //   return result
-  // }
+  @Post('login')
+  async login(@Body() body: LoginRequestBodyDTO, @UserAgent() userAgent: string, @Ip() ip: string) {
+    console.log('>>> Hello')
+    console.log('>>> IP: ', ip)
+    const result = await this.authService.login({
+      ...body,
+      userAgent,
+      ip,
+    })
+    return result
+  }
 
   // @Post('refresh-token')
   // @HttpCode(200)

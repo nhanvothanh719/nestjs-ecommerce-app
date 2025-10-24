@@ -22,8 +22,6 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() body: LoginRequestBodyDTO, @UserAgent() userAgent: string, @Ip() ip: string) {
-    console.log('>>> Hello')
-    console.log('>>> IP: ', ip)
     const result = await this.authService.login({
       ...body,
       userAgent,

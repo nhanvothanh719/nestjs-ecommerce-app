@@ -11,6 +11,7 @@ import {
   SendOTPRequestBodyDTO,
 } from 'src/routes/auth/auth.dto'
 import { AuthService } from 'src/routes/auth/auth.service'
+import { IsPublic } from 'src/shared/decorators/auth.decorator'
 import { UserAgent } from 'src/shared/decorators/user-agent.decorator'
 import { ResponseMessageDTO } from 'src/shared/dtos/response.dto'
 
@@ -19,6 +20,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @IsPublic()
   @ZodResponse({ type: RegisterResponseDTO })
   async register(@Body() body: RegisterRequestBodyDTO) {
     const result = await this.authService.register(body)
@@ -26,6 +28,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @IsPublic()
   @ZodResponse({ type: LoginResponseDTO })
   async login(@Body() body: LoginRequestBodyDTO, @UserAgent() userAgent: string, @Ip() ip: string) {
     const result = await this.authService.login({
@@ -37,6 +40,7 @@ export class AuthController {
   }
 
   @Post('refresh-token')
+  @IsPublic()
   @HttpCode(200)
   @ZodResponse({ type: RefreshTokenResponseDTO })
   async refreshToken(@Body() body: RefreshTokenRequestBodyDTO, @UserAgent() userAgent: string, @Ip() ip: string) {
@@ -56,6 +60,7 @@ export class AuthController {
   }
 
   @Post('otp')
+  @IsPublic()
   @ZodResponse({ type: ResponseMessageDTO })
   async sendOTP(@Body() body: SendOTPRequestBodyDTO) {
     const result = await this.authService.sendOTP(body)

@@ -13,7 +13,7 @@ dotenv.config({ path: path.resolve('.env') })
 
 // Validate environment variables
 const envConfigSchema = z.object({
-  DATABASE_URL: z.string().url(),
+  DATABASE_URL: z.url(),
   ACCESS_TOKEN_SECRET: z.string().min(5),
   ACCESS_TOKEN_EXPIRES_IN: z.string(),
   REFRESH_TOKEN_SECRET: z.string().min(5),

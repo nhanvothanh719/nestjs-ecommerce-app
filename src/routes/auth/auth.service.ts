@@ -181,7 +181,10 @@ export class AuthService {
     })
 
     // Send email with verification code
-    const { error } = await this.emailService.sendVerificationCodeMail({ email, code: verificationCode.code })
+    const { error } = await this.emailService.sendVerificationCodeMailWithReactEmail({
+      email,
+      code: verificationCode.code,
+    })
     if (error) {
       console.error('>>> Send mail error: ', error)
       throw new UnprocessableEntityException([

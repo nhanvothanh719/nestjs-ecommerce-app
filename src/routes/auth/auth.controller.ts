@@ -2,6 +2,9 @@ import { Body, Controller, HttpCode, Ip, Post } from '@nestjs/common'
 import { ZodResponse } from 'nestjs-zod'
 import {
   LoginRequestBodyDTO,
+  LoginResponseDTO,
+  RefreshTokenRequestBodyDTO,
+  RefreshTokenResponseDTO,
   RegisterRequestBodyDTO,
   RegisterResponseDTO,
   SendOTPRequestBodyDTO,
@@ -21,6 +24,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @ZodResponse({ type: LoginResponseDTO })
   async login(@Body() body: LoginRequestBodyDTO, @UserAgent() userAgent: string, @Ip() ip: string) {
     const result = await this.authService.login({
       ...body,
@@ -30,12 +34,17 @@ export class AuthController {
     return result
   }
 
-  // @Post('refresh-token')
-  // @HttpCode(200)
-  // async refreshToken(@Body() body: any) {
-  //   const result = await this.authService.refreshToken(body.refreshToken as string)
-  //   return result
-  // }
+  @Post('refresh-token')
+  @HttpCode(200)
+  @ZodResponse({ type: RefreshTokenResponseDTO })
+  async refreshToken(@Body() body: RefreshTokenRequestBodyDTO, @UserAgent() userAgent: string, @Ip() ip: string) {
+    const result = await this.authService.refreshToken({
+      refreshToken: body.refreshToken,
+      userAgent,
+      ip,
+    })
+    return result
+  }
 
   // @Post('logout')
   // async logout(@Body() body: any) {

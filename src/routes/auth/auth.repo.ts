@@ -26,6 +26,32 @@ export class AuthRepository {
     })
   }
 
+  findUniqueUserWithRoleIncluded(
+    uniqueObject: { id: number } | { email: string },
+  ): Promise<(UserType & { role: RoleType }) | null> {
+    return this.prismaService.user.findUnique({
+      where: uniqueObject,
+      include: {
+        role: true,
+      },
+    })
+  }
+
+  findUniqueRefreshTokenWithUserRoleIncluded(uniqueObject: {
+    token: string
+  }): Promise<(RefreshTokenType & { user: UserType & { role: RoleType } }) | null> {
+    return this.prismaService.refreshToken.findUnique({
+      where: uniqueObject,
+      include: {
+        user: {
+          include: {
+            role: true,
+          },
+        },
+      },
+    })
+  }
+
   createVerificationCode(
     payload: Pick<VerificationCodeType, 'email' | 'type' | 'code' | 'expiresAt'>,
   ): Promise<VerificationCodeType> {
@@ -58,20 +84,22 @@ export class AuthRepository {
     return this.prismaService.refreshToken.create({ data })
   }
 
+  deleteRefreshToken(uniqueObject: { token: string }): Promise<RefreshTokenType> {
+    return this.prismaService.refreshToken.delete({
+      where: uniqueObject,
+    })
+  }
+
   createDevice(
     data: Pick<DeviceType, 'userId' | 'userAgent' | 'ip'> & Partial<Pick<DeviceType, 'isActive' | 'lastActive'>>,
   ) {
     return this.prismaService.device.create({ data })
   }
 
-  findUniqueUserWithRoleIncluded(
-    uniqueObject: { id: number } | { email: string },
-  ): Promise<(UserType & { role: RoleType }) | null> {
-    return this.prismaService.user.findUnique({
-      where: uniqueObject,
-      include: {
-        role: true,
-      },
+  updateDevice(deviceId: number, data: Partial<DeviceType>): Promise<DeviceType> {
+    return this.prismaService.device.update({
+      where: { id: deviceId },
+      data,
     })
   }
 }

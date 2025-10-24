@@ -121,26 +121,25 @@ export class AuthService {
     return tokens
   }
 
-  // async logout(refreshToken: string) {
-  //   try {
-  //     await this.prismaService.refreshToken.findUniqueOrThrow({
-  //       where: {
-  //         token: refreshToken,
-  //       },
-  //     })
+  async logout(refreshToken: string) {
+    try {
+      // Verify refresh token
+      await this.tokenService.verifyRefreshToken(refreshToken)
 
-  //     await this.prismaService.refreshToken.delete({
-  //       where: {
-  //         token: refreshToken,
-  //       },
-  //     })
+      // Delete refresh token
+      const deletedRefreshToken = await this.authRepository.deleteRefreshToken({
+        token: refreshToken,
+      })
 
-  //     return { message: 'Logout successfully' }
-  //   } catch (error) {
-  //     if (isPrismaNotFoundError(error)) throw new UnauthorizedException('Invalid refresh token')
-  //     throw new UnauthorizedException()
-  //   }
-  // }
+      // Update device as logout
+      await this.authRepository.updateDevice(deletedRefreshToken.deviceId, { isActive: false })
+
+      return { message: 'Logout successfully' }
+    } catch (error) {
+      if (isPrismaNotFoundError(error)) throw new UnauthorizedException('Invalid refresh token')
+      throw new UnauthorizedException()
+    }
+  }
 
   async generateAccessAndRefreshTokens({ userId, deviceId, roleId, roleName }: AccessTokenPayloadCreate) {
     // Generate access and refresh token

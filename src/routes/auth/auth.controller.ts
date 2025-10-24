@@ -3,6 +3,7 @@ import { ZodResponse } from 'nestjs-zod'
 import {
   LoginRequestBodyDTO,
   LoginResponseDTO,
+  LogoutRequestBodyDTO,
   RefreshTokenRequestBodyDTO,
   RefreshTokenResponseDTO,
   RegisterRequestBodyDTO,
@@ -11,6 +12,7 @@ import {
 } from 'src/routes/auth/auth.dto'
 import { AuthService } from 'src/routes/auth/auth.service'
 import { UserAgent } from 'src/shared/decorators/user-agent.decorator'
+import { ResponseMessageDTO } from 'src/shared/dtos/response.dto'
 
 @Controller('auth')
 export class AuthController {
@@ -46,11 +48,12 @@ export class AuthController {
     return result
   }
 
-  // @Post('logout')
-  // async logout(@Body() body: any) {
-  //   const result = await this.authService.logout(body.refreshToken as string)
-  //   return result
-  // }
+  @Post('logout')
+  @ZodResponse({ type: ResponseMessageDTO })
+  async logout(@Body() body: LogoutRequestBodyDTO) {
+    const result = await this.authService.logout(body.refreshToken)
+    return result
+  }
 
   @Post('otp')
   async sendOTP(@Body() body: SendOTPRequestBodyDTO) {

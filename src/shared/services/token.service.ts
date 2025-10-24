@@ -3,6 +3,7 @@ import { JwtService, JwtSignOptions } from '@nestjs/jwt'
 import envConfig from 'src/shared/config'
 import ms from 'ms'
 import { AccessTokenPayloadCreate, RefreshTokenPayload, RefreshTokenPayloadCreate } from 'src/shared/types/jwt.type'
+import { v4 as uuidv4 } from 'uuid'
 
 const JWT_ALGORITHM = 'HS256'
 
@@ -16,7 +17,7 @@ export class TokenService {
       expiresIn: envConfig.ACCESS_TOKEN_EXPIRES_IN as ms.StringValue,
       algorithm: JWT_ALGORITHM,
     }
-    return this.jwtService.signAsync(payload, jwtSignOptions)
+    return this.jwtService.signAsync({ ...payload, uuid: uuidv4() }, jwtSignOptions)
   }
 
   signRefreshToken(payload: RefreshTokenPayloadCreate) {
@@ -25,7 +26,7 @@ export class TokenService {
       expiresIn: envConfig.REFRESH_TOKEN_EXPIRES_IN as ms.StringValue,
       algorithm: JWT_ALGORITHM,
     }
-    return this.jwtService.signAsync(payload, jwtSignOptions)
+    return this.jwtService.signAsync({ ...payload, uuid: uuidv4() }, jwtSignOptions)
   }
 
   verifyAccessToken(token: string): Promise<AccessTokenPayloadCreate> {

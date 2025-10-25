@@ -1,6 +1,7 @@
-import { Body, Controller, HttpCode, Ip, Post } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, Ip, Post } from '@nestjs/common'
 import { ZodResponse } from 'nestjs-zod'
 import {
+  GetGoogleAuthUrlResponseDTO,
   LoginRequestBodyDTO,
   LoginResponseDTO,
   LogoutRequestBodyDTO,
@@ -11,13 +12,17 @@ import {
   SendOTPRequestBodyDTO,
 } from 'src/routes/auth/auth.dto'
 import { AuthService } from 'src/routes/auth/auth.service'
+import { GoogleAuthService } from 'src/routes/auth/google-auth.service'
 import { IsPublic } from 'src/shared/decorators/auth.decorator'
 import { UserAgent } from 'src/shared/decorators/user-agent.decorator'
 import { ResponseMessageDTO } from 'src/shared/dtos/response.dto'
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly googleAuthService: GoogleAuthService,
+  ) {}
 
   @Post('register')
   @IsPublic()
@@ -65,5 +70,12 @@ export class AuthController {
   async sendOTP(@Body() body: SendOTPRequestBodyDTO) {
     const result = await this.authService.sendOTP(body)
     return result
+  }
+
+  @Get('google-auth-url')
+  @ZodResponse({ type: GetGoogleAuthUrlResponseDTO })
+  @IsPublic()
+  getGoogleAuthUrl(@UserAgent() userAgent: string, @Ip() ip: string) {
+    return this.googleAuthService.getGoogleAuthorizationUrl({ userAgent, ip })
   }
 }

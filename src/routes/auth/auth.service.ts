@@ -155,7 +155,7 @@ export class AuthService {
       token: refreshToken,
       userId,
       expiresAt: new Date(decodedRefreshToken.exp * 1000),
-      deviceId: 1,
+      deviceId,
     })
 
     return { accessToken, refreshToken }

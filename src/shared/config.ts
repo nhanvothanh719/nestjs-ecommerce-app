@@ -25,6 +25,10 @@ const envConfigSchema = z.object({
   ADMIN_USER_PHONE_NUMBER: z.string(),
   OTP_EXPIRES_IN: z.string(),
   RESEND_API_KEY: z.string().min(1),
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
+  GOOGLE_REDIRECT_URI: z.string(),
+  GOOGLE_CLIENT_REDIRECT_URI: z.string(),
 })
 const parsedEnvConfig = envConfigSchema.safeParse(process.env)
 

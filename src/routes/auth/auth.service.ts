@@ -59,9 +59,11 @@ export class AuthService {
         roleId: clientRoleId,
       })
       const $deleteVerificationCode = this.authRepository.deleteVerificationCode({
-        email,
-        code,
-        type: VerificationCodeGenre.REGISTER,
+        email_code_type: {
+          email,
+          code,
+          type: VerificationCodeGenre.REGISTER,
+        },
       })
       const [user] = await Promise.all([$createUser, $deleteVerificationCode])
       return user
@@ -232,9 +234,11 @@ export class AuthService {
 
     const $updateUser = this.authRepository.updateUser({ email }, { password: hashedPassword })
     const $deleteVerificationCode = this.authRepository.deleteVerificationCode({
-      email,
-      code,
-      type: VerificationCodeGenre.FORGOT_PASSWORD,
+      email_code_type: {
+        email,
+        code,
+        type: VerificationCodeGenre.FORGOT_PASSWORD,
+      },
     })
     await Promise.all([$updateUser, $deleteVerificationCode])
 
@@ -251,9 +255,7 @@ export class AuthService {
     type: VerificationCodeGenreType
   }) {
     const verificationCode = await this.authRepository.findUniqueVerificationCode({
-      email,
-      code,
-      type,
+      email_code_type: { email, code, type },
     })
 
     if (!verificationCode) throw InvalidVerificationCodeException

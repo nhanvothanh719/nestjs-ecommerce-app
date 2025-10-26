@@ -23,5 +23,7 @@ export type UserStatusType = (typeof UserStatus)[keyof typeof UserStatus]
 export const VerificationCodeGenre = {
   REGISTER: 'REGISTER',
   FORGOT_PASSWORD: 'FORGOT_PASSWORD',
+  LOGIN: 'LOGIN',
+  DISABLE_2FA: 'DISABLE_2FA',
 } as const
 export type VerificationCodeGenreType = (typeof VerificationCodeGenre)[keyof typeof VerificationCodeGenre]

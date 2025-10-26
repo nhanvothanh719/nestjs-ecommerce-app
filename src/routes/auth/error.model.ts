@@ -3,7 +3,7 @@ import { UnauthorizedException, UnprocessableEntityException } from '@nestjs/com
 const VERIFICATION_CODE_PATH = 'verification_code'
 const EMAIL_PATH = 'email'
 const PASSWORD_PATH = 'password'
-const TOTP_PATH = 'totpCode'
+const TOTP_PATH = 'totp_code'
 
 // Verification code related errors
 export const InvalidVerificationCodeException = new UnprocessableEntityException([

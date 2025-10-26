@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Ip, Post, Query, Res } from '@nestjs/c
 import type { Response } from 'express'
 import { ZodResponse } from 'nestjs-zod'
 import {
+  ForgotPasswordRequestBodyDTO,
   GetGoogleAuthUrlResponseDTO,
   LoginRequestBodyDTO,
   LoginResponseDTO,
@@ -93,5 +94,12 @@ export class AuthController {
       const message = error instanceof Error ? error.message : 'Error in handling Google callback'
       return res.redirect(`${envConfig.GOOGLE_CLIENT_REDIRECT_URI}?errorMessage=${message}`)
     }
+  }
+
+  @Post('forgot-password')
+  @IsPublic()
+  @ZodResponse({ type: ResponseMessageDTO })
+  async forgotPassword(@Body() body: ForgotPasswordRequestBodyDTO) {
+    return await this.authService.forgotPassword(body)
   }
 }

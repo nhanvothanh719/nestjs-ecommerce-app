@@ -3,7 +3,6 @@ import { DeviceType, RefreshTokenType, RoleType, VerificationCodeType } from 'sr
 import { VerificationCodeGenreType } from 'src/shared/constants/auth.constant'
 import { UserType } from 'src/shared/models/user.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
-import { email } from 'zod'
 
 @Injectable()
 export class AuthRepository {

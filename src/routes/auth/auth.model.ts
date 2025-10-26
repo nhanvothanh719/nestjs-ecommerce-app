@@ -150,7 +150,7 @@ export const Disable2FARequestBodySchema = z
         code: 'custom',
       })
       ctx.addIssue({
-        path: ['code'],
+        path: ['emailCode'],
         message: errorMessage,
         code: 'custom',
       })

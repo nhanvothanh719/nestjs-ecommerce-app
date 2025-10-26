@@ -53,9 +53,18 @@ export const LoginRequestBodySchema = UserSchema.pick({
 })
   .extend({
     totpCode: z.string().length(6).optional(),
-    emailCode: z.string().length(6).optional(),
+    loginVerificationCode: z.string().length(6).optional(),
   })
   .strict()
+  .superRefine(({ totpCode, loginVerificationCode }, ctx) => {
+    if (totpCode !== undefined && loginVerificationCode !== undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Cannot pass both totpCode annd loginVerificationCode',
+        path: ['loginVerificationCode'],
+      })
+    }
+  })
 
 export const LoginResponseSchema = z.object({
   accessToken: z.string(),
@@ -137,12 +146,12 @@ export const Setup2FAResponseSchema = z.object({
 export const Disable2FARequestBodySchema = z
   .object({
     totpCode: z.string().length(6).optional(),
-    emailCode: z.string().length(6).optional(),
+    loginVerificationCode: z.string().length(6).optional(),
   })
   .strict()
-  .superRefine(({ totpCode, emailCode }, ctx) => {
+  .superRefine(({ totpCode, loginVerificationCode }, ctx) => {
     // Trả về lỗi nếu xảy ra TH cả TOTP và Email OTP đều có hoặc không có giá trị
-    if ((totpCode !== undefined) === (emailCode !== undefined)) {
+    if ((totpCode !== undefined) === (loginVerificationCode !== undefined)) {
       const errorMessage = 'You must choose one of two methods for authentication'
       ctx.addIssue({
         path: ['totpCode'],
@@ -150,7 +159,7 @@ export const Disable2FARequestBodySchema = z
         code: 'custom',
       })
       ctx.addIssue({
-        path: ['emailCode'],
+        path: ['loginVerificationCode'],
         message: errorMessage,
         code: 'custom',
       })

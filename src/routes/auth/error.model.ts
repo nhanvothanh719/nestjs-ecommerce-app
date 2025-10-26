@@ -4,7 +4,6 @@ const VERIFICATION_CODE_PATH = 'verification_code'
 const EMAIL_PATH = 'email'
 const PASSWORD_PATH = 'password'
 const TOTP_PATH = 'totpCode'
-const OTP_CODE_PATH = 'code'
 
 // Verification code related errors
 export const InvalidVerificationCodeException = new UnprocessableEntityException([
@@ -69,13 +68,19 @@ export const NotEnabled2FAException = new UnprocessableEntityException([
     path: TOTP_PATH,
   },
 ])
-export const InvalidTOTPAndOTPCodeException = new UnprocessableEntityException([
+export const InvalidTOTPException = new UnprocessableEntityException([
+  {
+    message: 'Error.InvalidTOTP',
+    path: TOTP_PATH,
+  },
+])
+export const InvalidTOTPAndLoginVerificationCodeException = new UnprocessableEntityException([
   {
     message: 'Error.InvalidTOTP',
     path: TOTP_PATH,
   },
   {
-    message: 'Error.InvalidOTPCode',
-    path: OTP_CODE_PATH,
+    message: 'Error.InvalidVerificationCode',
+    path: VERIFICATION_CODE_PATH,
   },
 ])

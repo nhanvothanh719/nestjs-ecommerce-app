@@ -29,6 +29,8 @@ import {
   NotFoundEmailException,
   UnauthorizedAccessException,
   AlreadyEnabled2FAException,
+  InvalidTOTPException,
+  InvalidTOTPAndLoginVerificationCodeException,
 } from 'src/routes/auth/error.model'
 import { TwoFactorAuthenticationService } from 'src/shared/services/two-factor-auth.service'
 
@@ -81,12 +83,32 @@ export class AuthService {
   async login(body: LoginRequestBodyType & { ip: string; userAgent: string }) {
     const { email, password, ip, userAgent } = body
 
+    // Check user; email + password
     const user = await this.authRepository.findUniqueUserWithRoleIncluded({ email })
-
     if (!user) throw NotFoundEmailException
 
     const isCorrectPassword = await this.hashingService.compare(password, user.password)
     if (!isCorrectPassword) throw InvalidPasswordException
+
+    // Check OTP token (TOTP token || verification code) in case user has already used 2FA
+    if (user.totpSecret) {
+      if (!body.totpCode && !body.loginVerificationCode) throw InvalidTOTPAndLoginVerificationCodeException
+
+      if (body.totpCode) {
+        const isValid = this.twoFactorAuthenticationService.verifyTOTP({
+          email,
+          secret: user.totpSecret,
+          otpToken: body.totpCode,
+        })
+        if (!isValid) throw InvalidTOTPException
+      } else if (body.loginVerificationCode) {
+        await this.verifyVerificationCode({
+          email,
+          code: body.loginVerificationCode,
+          type: VerificationCodeGenre.LOGIN,
+        })
+      }
+    }
 
     const device = await this.authRepository.createDevice({
       userId: user.id,

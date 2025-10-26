@@ -24,6 +24,16 @@ import { VerificationCodeGenre } from 'src/shared/constants/auth.constant'
 import { EmailService } from 'src/shared/services/email.service'
 import { AccessTokenPayloadCreate } from 'src/shared/types/jwt.type'
 import { ResponseMessageType } from 'src/shared/models/response.model'
+import {
+  ExistedEmailException,
+  ExpiredOTPException,
+  FailedToSendOTPException,
+  InvalidOTPException,
+  InvalidPasswordException,
+  InvalidRefreshTokenException,
+  NotFoundEmailException,
+  UnauthorizedAccessException,
+} from 'src/routes/auth/error.model'
 
 @Injectable()
 export class AuthService {
@@ -47,19 +57,9 @@ export class AuthService {
         type: VerificationCodeGenre.REGISTER,
       })
       if (!verificationCode) {
-        throw new UnprocessableEntityException([
-          {
-            path: 'code',
-            message: 'Invalid OTP code',
-          },
-        ])
+        throw InvalidOTPException
       } else if (verificationCode.expiresAt < new Date()) {
-        throw new UnprocessableEntityException([
-          {
-            path: 'code',
-            message: 'OTP code is expired',
-          },
-        ])
+        throw ExpiredOTPException
       }
 
       const clientRoleId = await this.roleService.getClientRoleId()
@@ -74,12 +74,7 @@ export class AuthService {
       return user
     } catch (error) {
       if (isPrismaUniqueConstraintFailedError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            path: 'email',
-            message: 'Email already exists',
-          },
-        ])
+        throw ExistedEmailException
       }
       throw error
     }
@@ -90,22 +85,10 @@ export class AuthService {
 
     const user = await this.authRepository.findUniqueUserWithRoleIncluded({ email })
 
-    if (!user)
-      throw new UnprocessableEntityException([
-        {
-          path: 'email',
-          message: 'Email does not exist',
-        },
-      ])
+    if (!user) throw NotFoundEmailException
 
     const isCorrectPassword = await this.hashingService.compare(password, user.password)
-    if (!isCorrectPassword)
-      throw new UnprocessableEntityException([
-        {
-          path: 'password',
-          message: 'Incorrect password',
-        },
-      ])
+    if (!isCorrectPassword) throw InvalidPasswordException
 
     const device = await this.authRepository.createDevice({
       userId: user.id,
@@ -138,7 +121,7 @@ export class AuthService {
       return { message: 'Logout successfully' }
     } catch (error) {
       if (isPrismaNotFoundError(error)) throw new UnauthorizedException('Invalid refresh token')
-      throw new UnauthorizedException()
+      throw UnauthorizedAccessException
     }
   }
 
@@ -169,7 +152,7 @@ export class AuthService {
         token: refreshToken,
       })
 
-      if (!retrievedRefreshToken) throw new UnauthorizedException('Invalid refresh token')
+      if (!retrievedRefreshToken) throw InvalidRefreshTokenException
 
       const {
         deviceId,
@@ -204,21 +187,15 @@ export class AuthService {
       return generateAccessTokenAndRefreshTokenResult
     } catch (error) {
       if (error instanceof HttpException) throw error
-      throw new UnauthorizedException()
+      throw UnauthorizedAccessException
     }
   }
 
   async sendOTP(body: SendOTPRequestBodyType): Promise<ResponseMessageType> {
     const { email, type } = body
     const user = await this.sharedUserRepository.findUnique({ email })
-    if (user) {
-      throw new UnprocessableEntityException([
-        {
-          path: 'email',
-          message: 'Email already exists',
-        },
-      ])
-    }
+
+    if (user) throw ExistedEmailException
 
     const code = generateOTP()
     const verificationCode = await this.authRepository.createVerificationCode({
@@ -234,13 +211,8 @@ export class AuthService {
       code: verificationCode.code,
     })
     if (error) {
-      console.error('>>> Send mail error: ', error)
-      throw new UnprocessableEntityException([
-        {
-          path: 'code',
-          message: 'Fail to send email with verification code',
-        },
-      ])
+      console.log(error)
+      throw FailedToSendOTPException
     }
 
     return { message: 'Send verification code successfully' }

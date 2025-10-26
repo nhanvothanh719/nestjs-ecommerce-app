@@ -131,7 +131,7 @@ export const ForgotPasswordRequestBodySchema = z
 
 export const Setup2FAResponseSchema = z.object({
   secret: z.string(),
-  url: z.string(),
+  uri: z.string(),
 })
 
 export const Disable2FARequestBodySchema = z

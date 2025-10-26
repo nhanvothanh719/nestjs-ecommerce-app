@@ -1,5 +1,14 @@
 export const REQUEST_USER_KEY = 'user'
 
+export const JWT_ALGORITHM = 'HS256'
+
+export const TWO_FACTOR_AUTHENTICATION = {
+  ISSUER: 'EcommerceNestApp',
+  ALGORITHM: 'SHA1',
+  DIGITS: 6,
+  PERIOD: 30,
+} as const
+
 export const AuthType = {
   Bearer: 'Bearer',
   ApiKey: 'ApiKey',

@@ -28,7 +28,9 @@ import {
   InvalidRefreshTokenException,
   NotFoundEmailException,
   UnauthorizedAccessException,
+  AlreadyEnabled2FAException,
 } from 'src/routes/auth/error.model'
+import { TwoFactorAuthenticationService } from 'src/shared/services/two-factor-auth.service'
 
 @Injectable()
 export class AuthService {
@@ -39,6 +41,7 @@ export class AuthService {
     private readonly authRepository: AuthRepository,
     private readonly sharedUserRepository: SharedUserRepository,
     private readonly emailService: EmailService,
+    private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
   ) {}
 
   async register(body: RegisterRequestBodyType) {
@@ -243,6 +246,23 @@ export class AuthService {
     await Promise.all([$updateUser, $deleteVerificationCode])
 
     return { message: 'Change password successfully' }
+  }
+
+  async setup2FA(userId: number) {
+    // Check user
+    const user = await this.sharedUserRepository.findUnique({ id: userId })
+    if (!user) throw NotFoundEmailException
+
+    // Throw error if user has already enabled 2FA
+    if (user.totpSecret) throw AlreadyEnabled2FAException
+
+    // Create secret + uri
+    const { secret, uri } = this.twoFactorAuthenticationService.generateTOTPSecret(user.email)
+
+    // Update user
+    await this.authRepository.updateUser({ id: userId }, { totpSecret: secret })
+
+    return { secret, uri }
   }
 
   private async verifyVerificationCode({

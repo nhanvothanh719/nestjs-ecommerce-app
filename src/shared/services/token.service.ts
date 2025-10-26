@@ -9,8 +9,7 @@ import {
   RefreshTokenPayloadCreate,
 } from 'src/shared/types/jwt.type'
 import { v4 as uuidv4 } from 'uuid'
-
-const JWT_ALGORITHM = 'HS256'
+import { JWT_ALGORITHM } from 'src/shared/constants/auth.constant'
 
 @Injectable()
 export class TokenService {

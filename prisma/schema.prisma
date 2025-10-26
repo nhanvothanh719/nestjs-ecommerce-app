@@ -32,6 +32,9 @@ model Language {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model User {
@@ -99,6 +102,9 @@ model User {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model UserTranslation {
@@ -118,6 +124,9 @@ model UserTranslation {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model VerificationCode {
@@ -174,6 +183,9 @@ model Permission {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model Role {
@@ -192,6 +204,9 @@ model Role {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model Product {
@@ -215,6 +230,9 @@ model Product {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model ProductTranslation {
@@ -234,6 +252,9 @@ model ProductTranslation {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model Category {
@@ -252,6 +273,9 @@ model Category {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model CategoryTranslation {
@@ -271,6 +295,9 @@ model CategoryTranslation {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model Variant {
@@ -288,6 +315,9 @@ model Variant {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model VariantOption {
@@ -305,6 +335,9 @@ model VariantOption {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model SKU {
@@ -327,6 +360,9 @@ model SKU {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model Brand {
@@ -343,6 +379,9 @@ model Brand {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model BrandTranslation {
@@ -362,6 +401,9 @@ model BrandTranslation {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model CartItem {
@@ -405,6 +447,9 @@ model Order {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
+  @@index([deletedAt])
 }
 
 model Review {

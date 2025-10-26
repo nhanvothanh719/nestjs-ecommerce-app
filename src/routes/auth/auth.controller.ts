@@ -61,6 +61,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @HttpCode(200)
   @ZodResponse({ type: ResponseMessageDTO })
   async logout(@Body() body: LogoutRequestBodyDTO) {
     const result = await this.authService.logout(body.refreshToken)

@@ -26,7 +26,7 @@ export class EmailService {
     const subject = 'Verification code'
     return this.resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: ['nhanvothanh719@gmail.com'],
+      to: [envConfig.ADMIN_USER_EMAIL], // TODO: payload.email
       subject,
       html: otpTemplate.replaceAll('{{ preheaderText }}', subject).replaceAll('{{ code }}', payload.code),
     })
@@ -47,7 +47,7 @@ export class EmailService {
     )
     return this.resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: ['nhanvothanh719@gmail.com'],
+      to: [envConfig.ADMIN_USER_EMAIL], // TODO: payload.email
       subject,
       html,
     })

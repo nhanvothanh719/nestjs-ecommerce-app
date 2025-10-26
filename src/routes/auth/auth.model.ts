@@ -9,7 +9,7 @@ export const RegisterRequestBodySchema = UserSchema.pick({
   phoneNumber: true,
 })
   .extend({
-    confirmPassword: z.string().min(6).max(100),
+    confirmPassword: z.string().min(8).max(100),
     code: z.string().length(6),
   })
   .strict()
@@ -105,8 +105,8 @@ export const ForgotPasswordRequestBodySchema = z
   .object({
     email: z.email(),
     code: z.string().length(6),
-    newPassword: z.string().min(6).max(100),
-    confirmNewPassword: z.string().min(6).max(100),
+    newPassword: z.string().min(8).max(100),
+    confirmNewPassword: z.string().min(8).max(100),
   })
   .strict()
   .superRefine(({ newPassword, confirmNewPassword }, ctx) => {

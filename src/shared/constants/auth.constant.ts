@@ -18,6 +18,7 @@ export const UserStatus = {
   INACTIVE: 'INACTIVE',
   BLOCKED: 'BLOCKED',
 } as const
+export type UserStatusType = (typeof UserStatus)[keyof typeof UserStatus]
 
 export const VerificationCodeGenre = {
   REGISTER: 'REGISTER',

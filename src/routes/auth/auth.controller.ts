@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Ip, Post, Query, Res } from '@nestjs/c
 import type { Response } from 'express'
 import { ZodResponse } from 'nestjs-zod'
 import {
+  Disable2FARequestBodyDTO,
   ForgotPasswordRequestBodyDTO,
   GetGoogleAuthUrlResponseDTO,
   LoginRequestBodyDTO,
@@ -114,5 +115,11 @@ export class AuthController {
   @ZodResponse({ type: Setup2FAResponseDTO })
   async setup2FA(@Body() _body: EmptyRequestBodyDTO, @ActiveUser('userId') userId: number) {
     return await this.authService.setup2FA(userId)
+  }
+
+  @Post('2fa/disable')
+  @ZodResponse({ type: ResponseMessageDTO })
+  async disable2FA(@Body() body: Disable2FARequestBodyDTO, @ActiveUser('userId') userId: number) {
+    return await this.authService.disable2FA({ ...body, userId })
   }
 }

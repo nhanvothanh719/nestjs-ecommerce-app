@@ -146,12 +146,12 @@ export const Setup2FAResponseSchema = z.object({
 export const Disable2FARequestBodySchema = z
   .object({
     totpCode: z.string().length(6).optional(),
-    loginVerificationCode: z.string().length(6).optional(),
+    disabled2FAVerificationCode: z.string().length(6).optional(),
   })
   .strict()
-  .superRefine(({ totpCode, loginVerificationCode }, ctx) => {
+  .superRefine(({ totpCode, disabled2FAVerificationCode }, ctx) => {
     // Trả về lỗi nếu xảy ra TH cả TOTP và Email OTP đều có hoặc không có giá trị
-    if ((totpCode !== undefined) === (loginVerificationCode !== undefined)) {
+    if ((totpCode !== undefined) === (disabled2FAVerificationCode !== undefined)) {
       const errorMessage = 'You must choose one of two methods for authentication'
       ctx.addIssue({
         path: ['totpCode'],
@@ -159,7 +159,7 @@ export const Disable2FARequestBodySchema = z
         code: 'custom',
       })
       ctx.addIssue({
-        path: ['loginVerificationCode'],
+        path: ['disabled2FAVerificationCode'],
         message: errorMessage,
         code: 'custom',
       })

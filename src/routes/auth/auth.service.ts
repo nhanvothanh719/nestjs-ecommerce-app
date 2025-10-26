@@ -33,6 +33,7 @@ import {
   InvalidTOTPException,
   InvalidTOTPAndLoginVerificationCodeException,
   NotEnabled2FAException,
+  MissingVerificationMethodException,
 } from 'src/routes/auth/error.model'
 import { TwoFactorAuthenticationService } from 'src/shared/services/two-factor-auth.service'
 
@@ -303,6 +304,11 @@ export class AuthService {
     const user = await this.sharedUserRepository.findUnique({ id: userId })
     if (!user) throw NotFoundEmailException
     if (!user.totpSecret) throw NotEnabled2FAException
+
+    // Require at least one verification method
+    if (!totpCode && !disabled2FAVerificationCode) {
+      throw MissingVerificationMethodException
+    }
 
     // Check TOTP Code
     if (totpCode) {

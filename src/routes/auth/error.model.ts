@@ -84,3 +84,9 @@ export const InvalidTOTPAndLoginVerificationCodeException = new UnprocessableEnt
     path: VERIFICATION_CODE_PATH,
   },
 ])
+export const MissingVerificationMethodException = new UnprocessableEntityException([
+  {
+    message: 'Error.MissingVerificationMethod',
+    path: TOTP_PATH,
+  },
+])

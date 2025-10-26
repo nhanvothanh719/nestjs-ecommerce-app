@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 import envConfig from 'src/shared/config'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { AuthService } from 'src/routes/auth/auth.service'
+import { FailedToGetUserInfoGoogleError, FailedToLoginGoogleError } from 'src/routes/auth/error.model'
 
 @Injectable()
 export class GoogleAuthService {
@@ -65,7 +66,7 @@ export class GoogleAuthService {
         version: 'v2',
       })
       const { data } = await oauth2.userinfo.get()
-      if (!data.email) throw new Error('Unable to get user info from Google')
+      if (!data.email) throw FailedToGetUserInfoGoogleError
 
       // Get user info from Google --> Create new user in case user is not found in the system
       let user = await this.authRepository.findUniqueUserWithRoleIncluded({ email: data.email })
@@ -102,7 +103,7 @@ export class GoogleAuthService {
       return systemAuthTokens
     } catch (error) {
       console.error('Error in handling Google callback: ', error)
-      throw new Error('Fail to login with Google')
+      throw FailedToLoginGoogleError
     }
   }
 }

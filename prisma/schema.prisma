@@ -15,9 +15,8 @@ datasource db {
 }
 
 model Language {
-  id                   Int                   @id @default(autoincrement())
+  id                   String                @id @db.VarChar(10)
   name                 String                @db.VarChar(500)
-  code                 String                @unique @db.VarChar(10)
 
   // Relations
   userTranslations     UserTranslation[]
@@ -106,7 +105,7 @@ model UserTranslation {
   id          Int      @id @default(autoincrement())
   userId      Int
   user        User     @relation("User", fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  languageId  Int
+  languageId  String
   language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   address     String?  @db.VarChar(500)
   description String?
@@ -222,7 +221,7 @@ model ProductTranslation {
   id          Int      @id @default(autoincrement())
   productId   Int
   product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  languageId  Int
+  languageId  String
   language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name        String   @db.VarChar(500)
   description String
@@ -259,7 +258,7 @@ model CategoryTranslation {
   id          Int      @id @default(autoincrement())
   categoryId  Int
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  languageId  Int
+  languageId  String
   language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name        String   @db.VarChar(500)
   description String
@@ -350,7 +349,7 @@ model BrandTranslation {
   id          Int      @id @default(autoincrement())
   brandId     Int
   brand       Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  languageId  Int
+  languageId  String
   language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name        String   @db.VarChar(500)
   description String

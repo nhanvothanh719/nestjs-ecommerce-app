@@ -109,6 +109,14 @@ export class AuthService {
           code: body.loginVerificationCode,
           type: VerificationCodeGenre.LOGIN,
         })
+        // One-time use: delete after verification
+        await this.authRepository.deleteVerificationCode({
+          email_code_type: {
+            email,
+            code: body.loginVerificationCode,
+            type: VerificationCodeGenre.LOGIN,
+          },
+        })
       }
     }
 
@@ -309,6 +317,14 @@ export class AuthService {
         email: user.email,
         code: disabled2FAVerificationCode,
         type: VerificationCodeGenre.DISABLE_2FA,
+      })
+      // One-time use: delete after verification
+      await this.authRepository.deleteVerificationCode({
+        email_code_type: {
+          email: user.email,
+          code: disabled2FAVerificationCode,
+          type: VerificationCodeGenre.DISABLE_2FA,
+        },
       })
     }
 

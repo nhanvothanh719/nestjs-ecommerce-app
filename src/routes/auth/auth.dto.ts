@@ -1,5 +1,6 @@
 import { createZodDto } from 'nestjs-zod'
 import {
+  Disable2FARequestBodySchema,
   ForgotPasswordRequestBodySchema,
   GetGoogleAuthUrlResponseSchema,
   LoginRequestBodySchema,
@@ -10,6 +11,7 @@ import {
   RegisterRequestBodySchema,
   RegisterResponseSchema,
   SendOTPRequestBodySchema,
+  Setup2FAResponseSchema,
 } from 'src/routes/auth/auth.model'
 
 // DTO classes used in decorators: @Body, @Request,...
@@ -23,3 +25,5 @@ export class RefreshTokenResponseDTO extends createZodDto(RefreshTokenResponseSc
 export class LogoutRequestBodyDTO extends createZodDto(LogoutRequestBodySchema) {}
 export class GetGoogleAuthUrlResponseDTO extends createZodDto(GetGoogleAuthUrlResponseSchema) {}
 export class ForgotPasswordRequestBodyDTO extends createZodDto(ForgotPasswordRequestBodySchema) {}
+export class Setup2FAResponseDTO extends createZodDto(Setup2FAResponseSchema) {}
+export class Disable2FARequestBodyDTO extends createZodDto(Disable2FARequestBodySchema) {}

@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Ip, Post, Query, Res } from '@nestjs/c
 import type { Response } from 'express'
 import { ZodResponse } from 'nestjs-zod'
 import {
+  Disable2FARequestBodyDTO,
   ForgotPasswordRequestBodyDTO,
   GetGoogleAuthUrlResponseDTO,
   LoginRequestBodyDTO,
@@ -12,12 +13,15 @@ import {
   RegisterRequestBodyDTO,
   RegisterResponseDTO,
   SendOTPRequestBodyDTO,
+  Setup2FAResponseDTO,
 } from 'src/routes/auth/auth.dto'
 import { AuthService } from 'src/routes/auth/auth.service'
 import { GoogleAuthService } from 'src/routes/auth/google-auth.service'
 import envConfig from 'src/shared/config'
+import { ActiveUser } from 'src/shared/decorators/active-user.decorator'
 import { IsPublic } from 'src/shared/decorators/auth.decorator'
 import { UserAgent } from 'src/shared/decorators/user-agent.decorator'
+import { EmptyRequestBodyDTO } from 'src/shared/dtos/request.dto'
 import { ResponseMessageDTO } from 'src/shared/dtos/response.dto'
 
 @Controller('auth')
@@ -104,5 +108,18 @@ export class AuthController {
   @ZodResponse({ type: ResponseMessageDTO })
   async forgotPassword(@Body() body: ForgotPasswordRequestBodyDTO) {
     return await this.authService.forgotPassword(body)
+  }
+
+  // MEMO: Dùng `@Post()` mang ý nghĩa tạo ra + tránh việc tạo OTP Token thông qua URL trên browser
+  @Post('2fa/setup')
+  @ZodResponse({ type: Setup2FAResponseDTO })
+  async setup2FA(@Body() _body: EmptyRequestBodyDTO, @ActiveUser('userId') userId: number) {
+    return await this.authService.setup2FA(userId)
+  }
+
+  @Post('2fa/disable')
+  @ZodResponse({ type: ResponseMessageDTO })
+  async disable2FA(@Body() body: Disable2FARequestBodyDTO, @ActiveUser('userId') userId: number) {
+    return await this.authService.disable2FA({ ...body, userId })
   }
 }

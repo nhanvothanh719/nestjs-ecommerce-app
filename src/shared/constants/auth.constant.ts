@@ -1,5 +1,14 @@
 export const REQUEST_USER_KEY = 'user'
 
+export const JWT_ALGORITHM = 'HS256'
+
+export const TWO_FACTOR_AUTHENTICATION = {
+  ISSUER: 'EcommerceNestApp',
+  ALGORITHM: 'SHA1',
+  DIGITS: 6,
+  PERIOD: 30,
+} as const
+
 export const AuthType = {
   Bearer: 'Bearer',
   ApiKey: 'ApiKey',
@@ -23,5 +32,7 @@ export type UserStatusType = (typeof UserStatus)[keyof typeof UserStatus]
 export const VerificationCodeGenre = {
   REGISTER: 'REGISTER',
   FORGOT_PASSWORD: 'FORGOT_PASSWORD',
+  LOGIN: 'LOGIN',
+  DISABLE_2FA: 'DISABLE_2FA',
 } as const
 export type VerificationCodeGenreType = (typeof VerificationCodeGenre)[keyof typeof VerificationCodeGenre]

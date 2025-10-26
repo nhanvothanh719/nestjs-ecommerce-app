@@ -1,6 +1,7 @@
 import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { addMilliseconds } from 'date-fns'
 import {
+  Disable2FARequestBodyType,
   ForgotPasswordRequestBodyType,
   LoginRequestBodyType,
   RefreshTokenRequestBodyType,
@@ -28,7 +29,13 @@ import {
   InvalidRefreshTokenException,
   NotFoundEmailException,
   UnauthorizedAccessException,
+  AlreadyEnabled2FAException,
+  InvalidTOTPException,
+  InvalidTOTPAndLoginVerificationCodeException,
+  NotEnabled2FAException,
+  MissingVerificationMethodException,
 } from 'src/routes/auth/error.model'
+import { TwoFactorAuthenticationService } from 'src/shared/services/two-factor-auth.service'
 
 @Injectable()
 export class AuthService {
@@ -39,6 +46,7 @@ export class AuthService {
     private readonly authRepository: AuthRepository,
     private readonly sharedUserRepository: SharedUserRepository,
     private readonly emailService: EmailService,
+    private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
   ) {}
 
   async register(body: RegisterRequestBodyType) {
@@ -59,9 +67,11 @@ export class AuthService {
         roleId: clientRoleId,
       })
       const $deleteVerificationCode = this.authRepository.deleteVerificationCode({
-        email,
-        code,
-        type: VerificationCodeGenre.REGISTER,
+        email_code_type: {
+          email,
+          code,
+          type: VerificationCodeGenre.REGISTER,
+        },
       })
       const [user] = await Promise.all([$createUser, $deleteVerificationCode])
       return user
@@ -76,12 +86,40 @@ export class AuthService {
   async login(body: LoginRequestBodyType & { ip: string; userAgent: string }) {
     const { email, password, ip, userAgent } = body
 
+    // Check user; email + password
     const user = await this.authRepository.findUniqueUserWithRoleIncluded({ email })
-
     if (!user) throw NotFoundEmailException
 
     const isCorrectPassword = await this.hashingService.compare(password, user.password)
     if (!isCorrectPassword) throw InvalidPasswordException
+
+    // Check OTP token (TOTP token || verification code) in case user has already used 2FA
+    if (user.totpSecret) {
+      if (!body.totpCode && !body.loginVerificationCode) throw InvalidTOTPAndLoginVerificationCodeException
+
+      if (body.totpCode) {
+        const isValid = this.twoFactorAuthenticationService.verifyTOTP({
+          email,
+          secret: user.totpSecret,
+          otpToken: body.totpCode,
+        })
+        if (!isValid) throw InvalidTOTPException
+      } else if (body.loginVerificationCode) {
+        await this.verifyVerificationCode({
+          email,
+          code: body.loginVerificationCode,
+          type: VerificationCodeGenre.LOGIN,
+        })
+        // One-time use: delete after verification
+        await this.authRepository.deleteVerificationCode({
+          email_code_type: {
+            email,
+            code: body.loginVerificationCode,
+            type: VerificationCodeGenre.LOGIN,
+          },
+        })
+      }
+    }
 
     const device = await this.authRepository.createDevice({
       userId: user.id,
@@ -232,13 +270,72 @@ export class AuthService {
 
     const $updateUser = this.authRepository.updateUser({ email }, { password: hashedPassword })
     const $deleteVerificationCode = this.authRepository.deleteVerificationCode({
-      email,
-      code,
-      type: VerificationCodeGenre.FORGOT_PASSWORD,
+      email_code_type: {
+        email,
+        code,
+        type: VerificationCodeGenre.FORGOT_PASSWORD,
+      },
     })
     await Promise.all([$updateUser, $deleteVerificationCode])
 
     return { message: 'Change password successfully' }
+  }
+
+  async setup2FA(userId: number) {
+    // Check user
+    const user = await this.sharedUserRepository.findUnique({ id: userId })
+    if (!user) throw NotFoundEmailException
+
+    // Throw error if user has already enabled 2FA
+    if (user.totpSecret) throw AlreadyEnabled2FAException
+
+    // Create secret + uri
+    const { secret, uri } = this.twoFactorAuthenticationService.generateTOTPSecret(user.email)
+
+    // Update user
+    await this.authRepository.updateUser({ id: userId }, { totpSecret: secret })
+
+    return { secret, uri }
+  }
+
+  async disable2FA(data: Disable2FARequestBodyType & { userId: number }) {
+    const { userId, disabled2FAVerificationCode, totpCode } = data
+
+    const user = await this.sharedUserRepository.findUnique({ id: userId })
+    if (!user) throw NotFoundEmailException
+    if (!user.totpSecret) throw NotEnabled2FAException
+
+    // Require at least one verification method
+    if (!totpCode && !disabled2FAVerificationCode) {
+      throw MissingVerificationMethodException
+    }
+
+    // Check TOTP Code
+    if (totpCode) {
+      const isValid = this.twoFactorAuthenticationService.verifyTOTP({
+        email: user.email,
+        secret: user.totpSecret,
+        otpToken: totpCode,
+      })
+      if (!isValid) throw InvalidTOTPException
+    } else if (disabled2FAVerificationCode) {
+      await this.verifyVerificationCode({
+        email: user.email,
+        code: disabled2FAVerificationCode,
+        type: VerificationCodeGenre.DISABLE_2FA,
+      })
+      // One-time use: delete after verification
+      await this.authRepository.deleteVerificationCode({
+        email_code_type: {
+          email: user.email,
+          code: disabled2FAVerificationCode,
+          type: VerificationCodeGenre.DISABLE_2FA,
+        },
+      })
+    }
+
+    await this.authRepository.updateUser({ id: userId }, { totpSecret: null })
+    return { message: 'Disable Two-Factor Authentication successfully' }
   }
 
   private async verifyVerificationCode({
@@ -251,9 +348,7 @@ export class AuthService {
     type: VerificationCodeGenreType
   }) {
     const verificationCode = await this.authRepository.findUniqueVerificationCode({
-      email,
-      code,
-      type,
+      email_code_type: { email, code, type },
     })
 
     if (!verificationCode) throw InvalidVerificationCodeException

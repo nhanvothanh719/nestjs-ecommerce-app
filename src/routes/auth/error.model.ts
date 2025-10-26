@@ -1,28 +1,28 @@
 import { UnauthorizedException, UnprocessableEntityException } from '@nestjs/common'
 
-const CODE_PATH = 'code'
+const VERIFICATION_CODE_PATH = 'verification_code'
 const EMAIL_PATH = 'email'
 const PASSWORD_PATH = 'password'
 
 // Verification code related errors
-export const InvalidOTPException = new UnprocessableEntityException([
+export const InvalidVerificationCodeException = new UnprocessableEntityException([
   {
-    message: 'Error.InvalidOTP',
-    path: CODE_PATH,
+    message: 'Error.InvalidVerificationCode',
+    path: VERIFICATION_CODE_PATH,
   },
 ])
 
-export const ExpiredOTPException = new UnprocessableEntityException([
+export const ExpiredVerificationCodeException = new UnprocessableEntityException([
   {
-    message: 'Error.ExpiredOTP',
-    path: CODE_PATH,
+    message: 'Error.ExpiredVerificationCode',
+    path: VERIFICATION_CODE_PATH,
   },
 ])
 
-export const FailedToSendOTPException = new UnprocessableEntityException([
+export const FailedToSendVerificationCodeException = new UnprocessableEntityException([
   {
-    message: 'Error.FailedToSendOTP',
-    path: CODE_PATH,
+    message: 'Error.FailedToSendVerificationCode',
+    path: VERIFICATION_CODE_PATH,
   },
 ])
 

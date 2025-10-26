@@ -40,6 +40,13 @@ export class AuthRepository {
     })
   }
 
+  updateUser(uniqueObject: { id: number } | { email: string }, data: Partial<Omit<UserType, 'id'>>): Promise<UserType> {
+    return this.prismaService.user.update({
+      where: uniqueObject,
+      data,
+    })
+  }
+
   findUniqueRefreshTokenWithUserRoleIncluded(uniqueObject: {
     token: string
   }): Promise<(RefreshTokenType & { user: UserType & { role: RoleType } }) | null> {
@@ -78,6 +85,21 @@ export class AuthRepository {
     })
   }
 
+  deleteVerificationCode(
+    condition:
+      | { id: number }
+      | { email: string }
+      | {
+          email: string
+          code: string
+          type: VerificationCodeGenreType
+        },
+  ): Promise<VerificationCodeType> {
+    return this.prismaService.verificationCode.delete({
+      where: condition,
+    })
+  }
+
   createRefreshToken(data: {
     token: string
     userId: number
@@ -87,9 +109,9 @@ export class AuthRepository {
     return this.prismaService.refreshToken.create({ data })
   }
 
-  deleteRefreshToken(uniqueObject: { token: string }): Promise<RefreshTokenType> {
+  deleteRefreshToken(condition: { token: string }): Promise<RefreshTokenType> {
     return this.prismaService.refreshToken.delete({
-      where: uniqueObject,
+      where: condition,
     })
   }
 

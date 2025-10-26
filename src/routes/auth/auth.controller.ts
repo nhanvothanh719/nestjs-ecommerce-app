@@ -88,6 +88,8 @@ export class AuthController {
   async handleGoogleCallback(@Query('code') code: string, @Query('state') state: string, @Res() res: Response) {
     try {
       const { accessToken, refreshToken } = await this.googleAuthService.handleGoogleCallback({ code, state })
+      // MEMO: Not good
+      // TODO: Set tokens as secure, httpOnly cookies before redirecting
       return res.redirect(
         `${envConfig.GOOGLE_CLIENT_REDIRECT_URI}?accessToken=${accessToken}&refreshToken=${refreshToken}`,
       )

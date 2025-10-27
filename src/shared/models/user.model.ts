@@ -1,5 +1,5 @@
 import { UserStatus } from 'src/shared/constants/auth.constant'
-import z from 'zod'
+import * as z from 'zod'
 
 export const UserSchema = z.object({
   id: z.number(),

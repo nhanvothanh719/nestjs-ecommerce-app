@@ -1,6 +1,6 @@
 import { VerificationCodeGenre } from 'src/shared/constants/auth.constant'
 import { UserSchema } from 'src/shared/models/user.model'
-import z from 'zod'
+import * as z from 'zod'
 
 export const RegisterRequestBodySchema = UserSchema.pick({
   email: true,

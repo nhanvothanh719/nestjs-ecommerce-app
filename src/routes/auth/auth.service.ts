@@ -34,7 +34,7 @@ import {
   InvalidTOTPAndLoginVerificationCodeException,
   NotEnabled2FAException,
   MissingVerificationMethodException,
-} from 'src/routes/auth/error.model'
+} from 'src/routes/auth/auth.error'
 import { TwoFactorAuthenticationService } from 'src/shared/services/two-factor-auth.service'
 
 @Injectable()

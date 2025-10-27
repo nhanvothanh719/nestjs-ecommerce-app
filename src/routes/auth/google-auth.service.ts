@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 import envConfig from 'src/shared/config'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { AuthService } from 'src/routes/auth/auth.service'
-import { FailedToGetUserInfoGoogleError, FailedToLoginGoogleError } from 'src/routes/auth/error.model'
+import { FailedToGetUserInfoGoogleError, FailedToLoginGoogleError } from 'src/routes/auth/auth.error'
 
 @Injectable()
 export class GoogleAuthService {

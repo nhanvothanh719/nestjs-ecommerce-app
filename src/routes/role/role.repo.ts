@@ -71,6 +71,24 @@ export class RoleRepository {
     updatedByUserId: number
   }): Promise<RoleDetailsType> {
     const { name, isActive, description, permissionIds } = data
+
+    // Check if id of soft-deleted permissions are included in permissionIds
+    if (data.permissionIds.length > 0) {
+      const permissions = await this.prismaService.permission.findMany({
+        where: {
+          id: {
+            in: permissionIds,
+          },
+        },
+      })
+
+      const deletedPermissions = permissions.filter((item) => item.deletedAt !== null)
+      if (deletedPermissions.length > 0) {
+        const deletedPermissionIds = deletedPermissions.map((item) => item.id).join(', ')
+        throw new Error(`Permission with id: ${deletedPermissionIds} has been deleted`)
+      }
+    }
+
     return this.prismaService.role.update({
       where: {
         id,

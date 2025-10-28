@@ -44,6 +44,7 @@ export const CreatePermissionRequestBodySchema = PermissionSchema.pick({
   name: true,
   path: true,
   method: true,
+  description: true,
 })
 
 export const UpdatePermissionRequestBodySchema = CreatePermissionRequestBodySchema

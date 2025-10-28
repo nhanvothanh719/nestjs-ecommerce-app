@@ -49,6 +49,7 @@ export class PermissionService {
       return permission
     } catch (error) {
       if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedPermissionException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
       throw error
     }
   }

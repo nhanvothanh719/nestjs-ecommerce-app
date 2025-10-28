@@ -3,7 +3,7 @@ import * as z from 'zod'
 
 export const PermissionSchema = z.object({
   id: z.number(),
-  name: z.string().max(50),
+  name: z.string().max(100),
   description: z.string().nullable(),
   path: z.string().max(100),
   method: z.enum([

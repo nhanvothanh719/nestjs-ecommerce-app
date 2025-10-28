@@ -1,30 +1,9 @@
-import { HTTPMethod } from 'src/shared/constants/permission.constant'
+import { PermissionSchema } from 'src/shared/models/permission.model'
 import {
   BasePaginatedItemsListResponseSchema,
   GetPaginatedItemsListRequestQuerySchema,
 } from 'src/shared/models/request.model'
 import * as z from 'zod'
-
-export const PermissionSchema = z.object({
-  id: z.number(),
-  name: z.string().max(50),
-  description: z.string().nullable(),
-  path: z.string().max(100),
-  method: z.enum([
-    HTTPMethod.GET,
-    HTTPMethod.POST,
-    HTTPMethod.PUT,
-    HTTPMethod.PATCH,
-    HTTPMethod.DELETE,
-    HTTPMethod.HEAD,
-    HTTPMethod.OPTIONS,
-  ]),
-  createdByUserId: z.number().nullable(),
-  updatedByUserId: z.number().nullable(),
-  deletedAt: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
 
 export const GetPermissionsListRequestQuerySchema = GetPaginatedItemsListRequestQuerySchema
 
@@ -49,7 +28,6 @@ export const CreatePermissionRequestBodySchema = PermissionSchema.pick({
 
 export const UpdatePermissionRequestBodySchema = CreatePermissionRequestBodySchema
 
-export type PermissionType = z.infer<typeof PermissionSchema>
 export type GetPermissionsListRequestQueryType = z.infer<typeof GetPermissionsListRequestQuerySchema>
 export type GetPermissionsListResponseType = z.infer<typeof GetPermissionsListResponseSchema>
 export type GetPermissionRequestParamsType = z.infer<typeof GetPermissionRequestParamsSchema>

@@ -37,7 +37,11 @@ export class RoleRepository {
         deletedAt: null,
       },
       include: {
-        permissions: true,
+        permissions: {
+          where: {
+            deletedAt: null, // Only include not deleted permissions
+          },
+        },
       },
     })
   }
@@ -83,7 +87,11 @@ export class RoleRepository {
         },
       },
       include: {
-        permissions: true,
+        permissions: {
+          where: {
+            deletedAt: null, // Only include not deleted permissions
+          },
+        },
       },
     })
   }

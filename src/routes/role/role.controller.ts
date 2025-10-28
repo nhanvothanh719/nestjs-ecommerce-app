@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
 import { ZodResponse } from 'nestjs-zod'
-import { GetPermissionRequestParamsDTO } from 'src/routes/permission/permission.dto'
 import {
   CreateRoleRequestBodyDTO,
   CreateRoleResponseDTO,
@@ -48,7 +47,7 @@ export class RoleController {
 
   @Delete(':id')
   @ZodResponse({ type: ResponseMessageDTO })
-  async delete(@Param() params: GetPermissionRequestParamsDTO, @ActiveUser('userId') userId: number) {
+  async delete(@Param() params: GetRoleRequestParamsDTO, @ActiveUser('userId') userId: number) {
     return await this.roleService.delete({ id: params.id, updatedByUserId: userId })
   }
 }

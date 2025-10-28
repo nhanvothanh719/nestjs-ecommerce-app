@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core'
-import { permission } from 'process'
 import { AppModule } from 'src/app.module'
 import { HTTPMethod } from 'src/shared/constants/permission.constant'
 import { PrismaService } from 'src/shared/services/prisma.service'
@@ -73,6 +72,8 @@ async function bootstrap() {
     console.log('>>> No permissions to add!')
   }
 
+  // Shut down NestJS application and HTTP server
+  await app.close()
   // MEMO: Exit code 0 indicates successful executions
   process.exit(0)
 }

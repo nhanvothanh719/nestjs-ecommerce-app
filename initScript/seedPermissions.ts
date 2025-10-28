@@ -40,7 +40,7 @@ async function bootstrap() {
     return acc
   }, {})
 
-  // Xoá các permissions mà path tồn tại trong routes
+  // Xoá các permissions mà path không còn tồn tại trong available routes
   console.log('>>> Handle deleting predicated permission...')
   const toDeletePermissions = savedPermissions.filter((item) => {
     return !availableRoutesMap[`${item.method}-${item.path}`]
@@ -73,6 +73,7 @@ async function bootstrap() {
     console.log('>>> No permissions to add!')
   }
 
-  process.exit(1)
+  // MEMO: Exit code 0 indicates successful executions
+  process.exit(0)
 }
 bootstrap()

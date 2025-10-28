@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { RoleType } from 'src/routes/auth/auth.model'
 import { RoleName } from 'src/shared/constants/role.constant'
+import { RoleType } from 'src/shared/models/role.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()
@@ -14,7 +14,7 @@ export class RoleService {
    * Get id of role client
    * @returns Promise<number>
    */
-  async getClientRoleId() {
+  async getClientRoleId(): Promise<number> {
     // If `clientRoleId` has value <=> `clientRoleId` is cached
     if (this.clientRoleId) return this.clientRoleId
 
@@ -28,6 +28,6 @@ export class RoleService {
     })
     this.clientRoleId = clientRole.id
 
-    return this.clientRoleId
+    return clientRole.id
   }
 }

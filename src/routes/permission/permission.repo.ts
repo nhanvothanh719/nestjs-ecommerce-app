@@ -60,7 +60,7 @@ export class PermissionRepository {
     id: number
     data: UpdatePermissionRequestBodyType
     updatedByUserId: number
-  }) {
+  }): Promise<PermissionDetailsType> {
     return this.prismaService.permission.update({
       where: {
         id,

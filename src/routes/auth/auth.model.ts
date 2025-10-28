@@ -92,7 +92,7 @@ export const DeviceSchema = z.object({
 export const RoleSchema = z.object({
   id: z.number(),
   name: z.string(),
-  description: z.string(),
+  description: z.string().nullable(),
   isActive: z.boolean(),
   createdByUserId: z.number().nullable(),
   updatedByUserId: z.number().nullable(),

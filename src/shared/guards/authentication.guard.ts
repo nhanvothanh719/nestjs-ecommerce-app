@@ -19,6 +19,8 @@ export class AuthenticationGuard implements CanActivate {
      * Mục đích: Cho phép chọn guard phù hợp dựa trên metadata từ decorator @Auth().
      */
     this.authTypeGuardMap = {
+
+      
       // Xác thực bằng Bearer Token (JWT)
       [AuthType.Bearer]: this.accessTokenGuard,
       // Xác thực bằng API Key

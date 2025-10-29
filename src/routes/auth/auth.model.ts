@@ -17,7 +17,7 @@ export const RegisterRequestBodySchema = UserSchema.pick({
     if (confirmPassword !== password) {
       ctx.addIssue({
         code: 'custom',
-        message: 'Password and confirm password must match',
+        message: 'Error.ConfirmPasswordDoNotMatch',
         path: ['confirmPassword'],
       })
     }

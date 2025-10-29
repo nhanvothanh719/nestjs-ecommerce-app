@@ -39,14 +39,6 @@ export const NotFoundEmailException = new UnprocessableEntityException([
   },
 ])
 
-// Password related errors
-export const InvalidPasswordException = new UnprocessableEntityException([
-  {
-    message: 'Error.InvalidPassword',
-    path: PASSWORD_PATH,
-  },
-])
-
 // Access - refresh token related errors
 export const InvalidRefreshTokenException = new UnauthorizedException('Error. InvalidRefreshToken')
 export const UnauthorizedAccessException = new UnauthorizedException('Error.UnauthorizedAccess')

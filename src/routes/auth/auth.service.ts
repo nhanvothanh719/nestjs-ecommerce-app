@@ -25,7 +25,6 @@ import {
   ExpiredVerificationCodeException,
   FailedToSendVerificationCodeException,
   InvalidVerificationCodeException,
-  InvalidPasswordException,
   InvalidRefreshTokenException,
   NotFoundEmailException,
   UnauthorizedAccessException,
@@ -36,6 +35,7 @@ import {
   MissingVerificationMethodException,
 } from 'src/routes/auth/auth.error'
 import { TwoFactorAuthenticationService } from 'src/shared/services/two-factor-auth.service'
+import { InvalidPasswordException } from 'src/shared/error'
 
 @Injectable()
 export class AuthService {

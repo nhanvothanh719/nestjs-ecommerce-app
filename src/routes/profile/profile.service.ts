@@ -20,7 +20,7 @@ export class ProfileService {
       id,
       deletedAt: null,
     })
-    if (!user) throw NotFoundException
+    if (!user) throw NotFoundRecordException
     return user
   }
 
@@ -45,7 +45,7 @@ export class ProfileService {
     try {
       const { password, newPassword } = data
       const user = await this.sharedUserRepository.findUnique({ id, deletedAt: null })
-      if (!user) throw NotFoundException
+      if (!user) throw NotFoundRecordException
 
       // Check password
       const isCorrectPassword = await this.hashingService.compare(password, user.password)

@@ -120,7 +120,7 @@ export const ForgotPasswordRequestBodySchema = z
     if (confirmNewPassword !== newPassword) {
       ctx.addIssue({
         code: 'custom',
-        message: 'Password and confirm password must match',
+        message: 'Error.ConfirmPasswordDoNotMatch',
         path: ['confirmNewPassword'],
       })
     }

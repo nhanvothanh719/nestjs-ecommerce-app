@@ -31,20 +31,13 @@ export class AuthRepository {
   }
 
   findUniqueUserWithRoleIncluded(
-    uniqueObject: { id: number } | { email: string },
+    where: { id: number } | { email: string },
   ): Promise<(UserType & { role: RoleType }) | null> {
     return this.prismaService.user.findUnique({
-      where: uniqueObject,
+      where,
       include: {
         role: true,
       },
-    })
-  }
-
-  updateUser(uniqueObject: { id: number } | { email: string }, data: Partial<Omit<UserType, 'id'>>): Promise<UserType> {
-    return this.prismaService.user.update({
-      where: uniqueObject,
-      data,
     })
   }
 

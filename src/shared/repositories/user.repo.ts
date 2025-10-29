@@ -1,17 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { UserType } from 'src/shared/models/user.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
-import { UserWithRoleAndPermissionsType } from 'src/shared/types/user.type'
-
-type WhereUniqueUserType =
-  | {
-      id: number
-      [key: string]: any
-    }
-  | {
-      email: string
-      [key: string]: any
-    }
+import { UserWithRoleAndPermissionsType, WhereUniqueUserType } from 'src/shared/types/user.type'
 
 @Injectable()
 export class SharedUserRepository {

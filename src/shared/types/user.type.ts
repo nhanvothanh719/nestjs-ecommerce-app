@@ -7,3 +7,13 @@ export type UserWithRoleAndPermissionsType = UserType & {
     permissions: PermissionType[]
   }
 }
+
+export type WhereUniqueUserType =
+  | {
+      id: number
+      [key: string]: any
+    }
+  | {
+      email: string
+      [key: string]: any
+    }

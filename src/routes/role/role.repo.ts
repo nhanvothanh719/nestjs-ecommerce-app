@@ -73,7 +73,7 @@ export class RoleRepository {
     const { name, isActive, description, permissionIds } = data
 
     // Check if id of soft-deleted permissions are included in permissionIds
-    if (data.permissionIds.length > 0) {
+    if (permissionIds.length > 0) {
       const permissions = await this.prismaService.permission.findMany({
         where: {
           id: {

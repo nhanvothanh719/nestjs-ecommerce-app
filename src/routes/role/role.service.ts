@@ -13,7 +13,6 @@ import { RoleName } from 'src/shared/constants/role.constant'
 import { NotFoundRecordException } from 'src/shared/error'
 import { isPrismaNotFoundError, isPrismaUniqueConstraintFailedError } from 'src/shared/helpers'
 import { ResponseMessageType } from 'src/shared/models/response.model'
-import { keyof } from 'zod'
 
 @Injectable()
 export class RoleService {

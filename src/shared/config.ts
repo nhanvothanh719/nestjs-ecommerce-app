@@ -6,6 +6,7 @@ import * as z from 'zod'
 // Check `.env` file existence
 if (!fs.existsSync(path.resolve('.env'))) {
   console.error('>>> File `.env` không tồn tại')
+  // MEMO: Exit code 1 indicates an error or failure.
   process.exit(1)
 }
 // MEMO: Load biến môi trường vào `process.env`

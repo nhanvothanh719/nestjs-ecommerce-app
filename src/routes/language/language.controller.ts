@@ -8,6 +8,7 @@ import {
 } from 'src/routes/language/language.dto'
 import { LanguageService } from 'src/routes/language/language.service'
 import { ActiveUser } from 'src/shared/decorators/active-user.decorator'
+import { IsPublic } from 'src/shared/decorators/auth.decorator'
 import { ResponseMessageDTO } from 'src/shared/dtos/response.dto'
 
 @Controller('languages')
@@ -15,12 +16,14 @@ export class LanguageController {
   constructor(private readonly languageService: LanguageService) {}
 
   @Get()
+  @IsPublic()
   @ZodResponse({ type: GetLanguagesListResponseDTO })
   async getAll() {
     return await this.languageService.getAll()
   }
 
   @Get(':id')
+  @IsPublic()
   @ZodResponse({ type: LanguageDetailsDTO })
   async getById(@Param('id') id: string) {
     return await this.languageService.findById(id)

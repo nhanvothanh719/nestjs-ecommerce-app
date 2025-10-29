@@ -89,18 +89,6 @@ export const DeviceSchema = z.object({
   createdAt: z.date(),
 })
 
-export const RoleSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  description: z.string(),
-  isActive: z.boolean(),
-  createdByUserId: z.number().nullable(),
-  updatedByUserId: z.number().nullable(),
-  deletedAt: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
-
 export const RefreshTokenSchema = z.object({
   token: z.string(),
   userId: z.number(),
@@ -175,7 +163,6 @@ export type LoginResponseType = z.infer<typeof LoginResponseSchema>
 export type RefreshTokenRequestBodyType = z.infer<typeof RefreshTokenRequestBodySchema>
 export type RefreshTokenResponseType = z.infer<typeof RefreshTokenResponseSchema>
 export type DeviceType = z.infer<typeof DeviceSchema>
-export type RoleType = z.infer<typeof RoleSchema>
 export type RefreshTokenType = z.infer<typeof RefreshTokenSchema>
 export type LogoutRequestBodyType = z.infer<typeof LogoutRequestBodySchema>
 export type GoogleAuthStateType = z.infer<typeof GoogleAuthStateSchema>

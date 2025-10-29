@@ -32,6 +32,7 @@ const main = async () => {
   const adminRole = await prisma.role.findFirstOrThrow({
     where: {
       name: RoleName.Admin,
+      deletedAt: null,
     },
   })
 

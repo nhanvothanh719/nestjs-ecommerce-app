@@ -3,12 +3,12 @@ import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
 import { GoogleAuthStateType } from 'src/routes/auth/auth.model'
 import { AuthRepository } from 'src/routes/auth/auth.repo'
-import { RoleService } from 'src/routes/auth/role.service'
 import { v4 as uuidv4 } from 'uuid'
 import envConfig from 'src/shared/config'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { AuthService } from 'src/routes/auth/auth.service'
 import { FailedToGetUserInfoGoogleError, FailedToLoginGoogleError } from 'src/routes/auth/auth.error'
+import { SharedRoleRepository } from 'src/shared/repositories/role.repo'
 
 @Injectable()
 export class GoogleAuthService {
@@ -16,9 +16,9 @@ export class GoogleAuthService {
 
   constructor(
     private readonly authRepository: AuthRepository,
-    private readonly roleService: RoleService,
     private readonly hashingService: HashingService,
     private readonly authService: AuthService,
+    private readonly sharedRoleRepository: SharedRoleRepository,
   ) {
     const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI } = envConfig
     this.oauth2Client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI)
@@ -71,7 +71,7 @@ export class GoogleAuthService {
       // Get user info from Google --> Create new user in case user is not found in the system
       let user = await this.authRepository.findUniqueUserWithRoleIncluded({ email: data.email })
       if (!user) {
-        const clientRoleId = await this.roleService.getClientRoleId()
+        const clientRoleId = await this.sharedRoleRepository.getClientRoleId()
         const uuid = uuidv4()
         const password = await this.hashingService.hash(uuid)
 

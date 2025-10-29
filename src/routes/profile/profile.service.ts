@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ChangePasswordRequestBodyType, UpdateMyProfileRequestBodyType } from 'src/routes/profile/profile.model'
 import { InvalidPasswordException, NotFoundRecordException } from 'src/shared/error'
 import { isPrismaUniqueConstraintFailedError } from 'src/shared/helpers'

@@ -45,13 +45,7 @@ export class RoleService {
     updatedByUserId: number
   }): Promise<RoleDetailsType> {
     try {
-      const role = await this.roleRepository.findById(payload.id)
-      if (!role) throw NotFoundRecordException
-
-      // MEMO: Không cho phép UPDATE role Admin
-      if (role.name === RoleName.Admin) {
-        throw ProhibitedActionOnBaseRoleException
-      }
+      await this.verifyRole(payload.id)
 
       const roleWithPermissions = await this.roleRepository.update(payload)
       return roleWithPermissions
@@ -65,20 +59,24 @@ export class RoleService {
 
   async delete(payload: { id: number; updatedByUserId: number }): Promise<ResponseMessageType> {
     try {
-      const role = await this.roleRepository.findById(payload.id)
-      if (!role) throw NotFoundRecordException
-
-      // MEMO: Không cho phép DELETE các role cơ bản
-      const baseRoles: string[] = [RoleName.Admin, RoleName.Seller, RoleName.Client]
-      if (baseRoles.includes(role.name)) {
-        throw ProhibitedActionOnBaseRoleException
-      }
+      await this.verifyRole(payload.id)
 
       await this.roleRepository.delete(payload)
       return { message: 'Delete role successfully' }
     } catch (error) {
       if (isPrismaNotFoundError(error)) throw NotFoundRecordException
       throw error
+    }
+  }
+
+  private async verifyRole(id: number) {
+    const role = await this.roleRepository.findById(id)
+    if (!role) throw NotFoundRecordException
+
+    // MEMO: Không cho phép thao tác chỉnh sửa các role cơ bản
+    const baseRoles: string[] = [RoleName.Admin, RoleName.Seller, RoleName.Client]
+    if (baseRoles.includes(role.name)) {
+      throw ProhibitedActionOnBaseRoleException
     }
   }
 }

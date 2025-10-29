@@ -48,6 +48,7 @@ export class AccessTokenGuard implements CanActivate {
       .findUniqueOrThrow({
         where: {
           id: roleId,
+          isActive: true, // Only active role can make request requiring Auth
           deletedAt: null,
         },
         include: {

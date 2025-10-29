@@ -51,7 +51,6 @@ export class RoleService {
     } catch (error) {
       if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedRoleException
       if (isPrismaNotFoundError(error)) throw NotFoundRecordException
-      if (error instanceof Error) throw new BadRequestException(error.message)
       throw error
     }
   }

@@ -15,16 +15,18 @@ async function bootstrap() {
   const server = app.getHttpAdapter().getInstance()
   const router = server.router
 
-  const availableRoutes: { path: string; method: keyof typeof HTTPMethod; name: string }[] = router.stack
-    .map((layer) => {
-      if (layer.route) {
-        const path = layer.route?.path
-        const method = String(layer.route?.stack[0].method).toUpperCase() as keyof typeof HTTPMethod
-        const name = `${method} ${path}`
-        return { path, method, name }
-      }
-    })
-    .filter((item) => item !== undefined)
+  const availableRoutes: { path: string; method: keyof typeof HTTPMethod; module: string; name: string }[] =
+    router.stack
+      .map((layer) => {
+        if (layer.route) {
+          const path = layer.route?.path
+          const method = String(layer.route?.stack[0].method).toUpperCase() as keyof typeof HTTPMethod
+          const module = path.split('/')[1]
+          const name = `${method} ${path}`
+          return { path, method, name, module }
+        }
+      })
+      .filter((item) => item !== undefined)
   if (SHOW_AVAILABLE_ROUTES) console.log('>>> Available routes: ', availableRoutes)
 
   const savedPermissions = await prismaService.permission.findMany({

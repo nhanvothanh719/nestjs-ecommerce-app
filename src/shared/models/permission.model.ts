@@ -15,6 +15,7 @@ export const PermissionSchema = z.object({
     HTTPMethod.HEAD,
     HTTPMethod.OPTIONS,
   ]),
+  module: z.string().max(100),
   createdByUserId: z.number().nullable(),
   updatedByUserId: z.number().nullable(),
   deletedAt: z.date().nullable(),

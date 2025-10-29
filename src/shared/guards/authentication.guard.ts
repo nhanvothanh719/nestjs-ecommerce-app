@@ -14,20 +14,35 @@ export class AuthenticationGuard implements CanActivate {
     private readonly accessTokenGuard: AccessTokenGuard,
     private readonly apiKeyGuard: ApiKeyGuard,
   ) {
+    /**
+     * Khởi tạo mapping giữa từng loại cơ chế xác thực và guard xử lý tương ứng.
+     * Mục đích: Cho phép chọn guard phù hợp dựa trên metadata từ decorator @Auth().
+     */
     this.authTypeGuardMap = {
+      // Xác thực bằng Bearer Token (JWT)
       [AuthType.Bearer]: this.accessTokenGuard,
+      // Xác thực bằng API Key
       [AuthType.ApiKey]: this.apiKeyGuard,
+      // Route public (không yêu cầu xác thực)
       [AuthType.None]: { canActivate: (_context: ExecutionContext) => true },
     }
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Retrieve data passed from @Auth() decorator
+    /**
+     * [1] Lấy metadata từ decorator `@Auth()` (nếu có).
+     *     Reflector sẽ đọc metadata từ cả cấp handler (method) và class (controller).
+     *     Nếu không có, mặc định sẽ yêu cầu xác thực Bearer token và dùng điều kiện AND.
+     */
     const authTypeValue = this.reflector.getAllAndOverride<AuthTypeDecoratorPayload | undefined>(AUTH_TYPE_KEY, [
       context.getHandler(),
       context.getClass(),
     ]) ?? { authTypes: [AuthType.Bearer], options: { condition: ConditionGuard.And } }
 
+    /**
+     * [2️] Dựa trên danh sách authTypes lấy từ decorator, 
+     *     ánh xạ sang các guard tương ứng (Bearer / ApiKey / None / ...)
+     */
     const guards = authTypeValue.authTypes.map((authType) => this.authTypeGuardMap[authType])
 
     let error = new UnauthorizedException()

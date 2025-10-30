@@ -5,7 +5,6 @@ import {
   MaxFileSizeValidator,
   NotFoundException,
   Param,
-  ParseFilePipe,
   Post,
   Res,
   UploadedFiles,
@@ -15,9 +14,9 @@ import { FilesInterceptor } from '@nestjs/platform-express'
 import type { Response } from 'express'
 import path from 'path'
 import { MediaService } from 'src/routes/media/media.service'
+import { ParseFilePipeWithUnlink } from 'src/routes/media/parse-file-pipe-with-unlink.pipe'
 import { FIELD_NAME, MAX_COUNT, MAX_SIZE_PER_IMAGE, UPLOAD_DIR } from 'src/shared/constants/media.constant'
 import { IsPublic } from 'src/shared/decorators/auth.decorator'
-import { AwsS3Service } from 'src/shared/services/aws_s3.service'
 
 @Controller('media')
 export class MediaController {
@@ -37,7 +36,7 @@ export class MediaController {
   )
   uploadImages(
     @UploadedFiles(
-      new ParseFilePipe({
+      new ParseFilePipeWithUnlink({
         validators: [new MaxFileSizeValidator({ maxSize: MAX_SIZE_PER_IMAGE })],
       }),
     )

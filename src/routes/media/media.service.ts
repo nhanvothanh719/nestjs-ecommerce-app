@@ -21,11 +21,11 @@ export class MediaService {
     ])
 
     // Delete images uploaded to server
-    await Promise.all([
-      ...files.map((file) => {
+    await Promise.all(
+      files.map((file) => {
         return unlink(file.path)
       }),
-    ])
+    )
 
     return result
   }

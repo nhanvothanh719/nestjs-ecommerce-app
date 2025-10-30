@@ -4,6 +4,7 @@ import { VerificationCodeGenreType } from 'src/shared/constants/auth.constant'
 import { RoleType } from 'src/shared/models/role.model'
 import { UserType } from 'src/shared/models/user.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
+import { WhereUniqueUserType } from 'src/shared/types/user.type'
 
 @Injectable()
 export class AuthRepository {
@@ -31,10 +32,13 @@ export class AuthRepository {
   }
 
   findUniqueUserWithRoleIncluded(
-    where: { id: number } | { email: string },
+    where: WhereUniqueUserType,
   ): Promise<(UserType & { role: RoleType }) | null> {
-    return this.prismaService.user.findUnique({
-      where,
+    return this.prismaService.user.findFirst({
+      where: {
+        ...where,
+        deletedAt: null,
+      },
       include: {
         role: true,
       },

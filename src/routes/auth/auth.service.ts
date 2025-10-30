@@ -9,7 +9,6 @@ import {
   SendOTPRequestBodyType,
 } from 'src/routes/auth/auth.model'
 import { AuthRepository } from 'src/routes/auth/auth.repo'
-import { RoleService } from 'src/routes/auth/role.service'
 import { generateOTP, isPrismaNotFoundError, isPrismaUniqueConstraintFailedError } from 'src/shared/helpers'
 import { SharedUserRepository } from 'src/shared/repositories/user.repo'
 import { HashingService } from 'src/shared/services/hashing.service'
@@ -36,17 +35,18 @@ import {
 } from 'src/routes/auth/auth.error'
 import { TwoFactorAuthenticationService } from 'src/shared/services/two-factor-auth.service'
 import { InvalidPasswordException } from 'src/shared/error'
+import { SharedRoleRepository } from 'src/shared/repositories/role.repo'
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly hashingService: HashingService,
     private readonly tokenService: TokenService,
-    private readonly roleService: RoleService,
     private readonly authRepository: AuthRepository,
     private readonly sharedUserRepository: SharedUserRepository,
     private readonly emailService: EmailService,
     private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
+    private readonly sharedRoleRepository: SharedRoleRepository,
   ) {}
 
   async register(body: RegisterRequestBodyType) {
@@ -56,7 +56,7 @@ export class AuthService {
       // Check verification code
       await this.verifyVerificationCode({ email, code, type: VerificationCodeGenre.REGISTER })
 
-      const clientRoleId = await this.roleService.getClientRoleId()
+      const clientRoleId = await this.sharedRoleRepository.getClientRoleId()
       const hashedPassword = await this.hashingService.hash(password)
 
       const $createUser = this.authRepository.createUser({
@@ -224,7 +224,7 @@ export class AuthService {
 
   async sendOTP(body: SendOTPRequestBodyType): Promise<ResponseMessageType> {
     const { email, type } = body
-    const user = await this.sharedUserRepository.findUnique({ email, deletedAt: null })
+    const user = await this.sharedUserRepository.findUnique({ email })
 
     if (type === VerificationCodeGenre.REGISTER && user) throw ExistedEmailException
     if (type === VerificationCodeGenre.FORGOT_PASSWORD && !user) throw NotFoundEmailException
@@ -253,10 +253,7 @@ export class AuthService {
   async forgotPassword(body: ForgotPasswordRequestBodyType) {
     const { email, code, newPassword } = body
     // Check email
-    const user = await this.sharedUserRepository.findUnique({
-      email,
-      deletedAt: null,
-    })
+    const user = await this.sharedUserRepository.findUnique({ email })
     if (!user) throw NotFoundEmailException
 
     // Check verification code
@@ -270,7 +267,7 @@ export class AuthService {
     const hashedPassword = await this.hashingService.hash(newPassword)
 
     const $updateUser = this.sharedUserRepository.update(
-      { email, deletedAt: null },
+      { id: user.id },
       { password: hashedPassword, updatedByUserId: user.id },
     )
     const $deleteVerificationCode = this.authRepository.deleteVerificationCode({
@@ -287,7 +284,7 @@ export class AuthService {
 
   async setup2FA(userId: number) {
     // Check user
-    const user = await this.sharedUserRepository.findUnique({ id: userId, deletedAt: null })
+    const user = await this.sharedUserRepository.findUnique({ id: userId })
     if (!user) throw NotFoundEmailException
 
     // Throw error if user has already enabled 2FA
@@ -297,10 +294,7 @@ export class AuthService {
     const { secret, uri } = this.twoFactorAuthenticationService.generateTOTPSecret(user.email)
 
     // Update user
-    await this.sharedUserRepository.update(
-      { id: userId, updatedAt: null },
-      { totpSecret: secret, updatedByUserId: userId },
-    )
+    await this.sharedUserRepository.update({ id: userId }, { totpSecret: secret, updatedByUserId: userId })
 
     return { secret, uri }
   }
@@ -308,7 +302,7 @@ export class AuthService {
   async disable2FA(data: Disable2FARequestBodyType & { userId: number }) {
     const { userId, disabled2FAVerificationCode, totpCode } = data
 
-    const user = await this.sharedUserRepository.findUnique({ id: userId, deletedAt: null })
+    const user = await this.sharedUserRepository.findUnique({ id: userId })
     if (!user) throw NotFoundEmailException
     if (!user.totpSecret) throw NotEnabled2FAException
 
@@ -341,10 +335,7 @@ export class AuthService {
       })
     }
 
-    await this.sharedUserRepository.update(
-      { id: userId, updatedAt: null },
-      { totpSecret: null, updatedByUserId: userId },
-    )
+    await this.sharedUserRepository.update({ id: userId }, { totpSecret: null, updatedByUserId: userId })
     return { message: 'Disable Two-Factor Authentication successfully' }
   }
 

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ChangePasswordRequestBodyType, UpdateMyProfileRequestBodyType } from 'src/routes/profile/profile.model'
 import { InvalidPasswordException, NotFoundRecordException } from 'src/shared/error'
 import { isPrismaUniqueConstraintFailedError } from 'src/shared/helpers'
@@ -16,17 +16,14 @@ export class ProfileService {
   ) {}
 
   async getUserProfile(id: number): Promise<UserWithRoleAndPermissionsType> {
-    const user = await this.sharedUserRepository.findUniqueWithRoleAndPermissionsIncluded({
-      id,
-      deletedAt: null,
-    })
+    const user = await this.sharedUserRepository.findUniqueWithRoleAndPermissionsIncluded({ id })
     if (!user) throw NotFoundRecordException
     return user
   }
 
   async updateUserProfile({ id, data }: { id: number; data: UpdateMyProfileRequestBodyType }): Promise<UserType> {
     try {
-      const user = await this.sharedUserRepository.update({ id, deletedAt: null }, { ...data, updatedByUserId: id })
+      const user = await this.sharedUserRepository.update({ id }, { ...data, updatedByUserId: id })
       if (!user) throw NotFoundRecordException
       return user
     } catch (error) {
@@ -44,7 +41,7 @@ export class ProfileService {
   }): Promise<ResponseMessageType> {
     try {
       const { password, newPassword } = data
-      const user = await this.sharedUserRepository.findUnique({ id, deletedAt: null })
+      const user = await this.sharedUserRepository.findUnique({ id })
       if (!user) throw NotFoundRecordException
 
       // Check password
@@ -53,10 +50,7 @@ export class ProfileService {
       const newHashedPassword = await this.hashingService.hash(newPassword)
 
       // Change password
-      await this.sharedUserRepository.update(
-        { id, deletedAt: null },
-        { password: newHashedPassword, updatedByUserId: id },
-      )
+      await this.sharedUserRepository.update({ id }, { password: newHashedPassword, updatedByUserId: id })
 
       return { message: 'Update password successfully' }
     } catch (error) {

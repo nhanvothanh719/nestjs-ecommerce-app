@@ -1,4 +1,5 @@
 export const REQUEST_USER_KEY = 'user'
+export const REQUEST_USER_ROLE_PERMISSIONS_KEY = 'role_permissions'
 
 export const JWT_ALGORITHM = 'HS256'
 

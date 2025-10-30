@@ -39,7 +39,7 @@ export class UserService {
   }
 
   async findById(id: number): Promise<UserWithRoleAndPermissionsType> {
-    const user = await this.sharedUserRepository.findUniqueWithRoleAndPermissionsIncluded({ id, deletedAt: null })
+    const user = await this.sharedUserRepository.findUniqueWithRoleAndPermissionsIncluded({ id })
     if (!user) throw NotFoundRecordException
     return user
   }
@@ -95,7 +95,7 @@ export class UserService {
       const targetRoleId = await this.getRoleIdByUserId(id)
       await this.checkCanActionOnUserWithAdminRole({ agentRoleName: updatedByRoleName, targetRoleId })
 
-      const user = await this.sharedUserRepository.update({ id, deletedAt: null }, { ...data, updatedByUserId })
+      const user = await this.sharedUserRepository.update({ id }, { ...data, updatedByUserId })
       if (!user) throw NotFoundRecordException
 
       return user
@@ -153,7 +153,7 @@ export class UserService {
   }
 
   private async getRoleIdByUserId(id: number): Promise<number> {
-    const user = await this.sharedUserRepository.findUnique({ id, deletedAt: null })
+    const user = await this.sharedUserRepository.findUnique({ id })
     if (!user) throw NotFoundRecordException
     return user.roleId
   }

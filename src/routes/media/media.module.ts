@@ -5,6 +5,7 @@ import { MulterModule } from '@nestjs/platform-express'
 import multer from 'multer'
 import path from 'path'
 import { generateFileName } from 'src/shared/helpers'
+import { existsSync, mkdirSync } from 'fs'
 
 const UPLOAD_DIR = path.resolve('upload')
 // Cấu hình storage cho Multer - thư viện quản lý file upload
@@ -29,4 +30,11 @@ const storage = multer.diskStorage({
   providers: [MediaService],
   controllers: [MediaController],
 })
-export class MediaModule {}
+export class MediaModule {
+  constructor() {
+    // Tạo folder `/upload` trong trường hợp chưa có khi run app
+    if (!existsSync(UPLOAD_DIR)) {
+      mkdirSync(UPLOAD_DIR, { recursive: true })
+    }
+  }
+}

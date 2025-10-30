@@ -3,11 +3,10 @@ import { MediaService } from './media.service'
 import { MediaController } from './media.controller'
 import { MulterModule } from '@nestjs/platform-express'
 import multer from 'multer'
-import path from 'path'
 import { generateFileName } from 'src/shared/helpers'
 import { existsSync, mkdirSync } from 'fs'
+import { UPLOAD_DIR } from 'src/shared/constants/media.constant'
 
-const UPLOAD_DIR = path.resolve('upload')
 // Cấu hình storage cho Multer - thư viện quản lý file upload
 const storage = multer.diskStorage({
   // Xác định thư mục đích để lưu file upload

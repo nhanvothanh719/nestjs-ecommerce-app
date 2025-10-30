@@ -1,41 +1,39 @@
 import {
   BadRequestException,
   Controller,
-  FileTypeValidator,
   MaxFileSizeValidator,
   ParseFilePipe,
   Post,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common'
-import { FileInterceptor } from '@nestjs/platform-express'
+import { FilesInterceptor } from '@nestjs/platform-express'
+import { FIELD_NAME, MAX_COUNT, MAX_SIZE_PER_IMAGE } from 'src/shared/constants/media.constant'
 
 @Controller('media')
 export class MediaController {
   @Post('images/upload')
   @UseInterceptors(
-    FileInterceptor('file', {
-      fileFilter: (req, file, cb) => {
+    FilesInterceptor(FIELD_NAME, MAX_COUNT, {
+      fileFilter(req, file, callback) {
         const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
         if (!allowedMimeTypes.includes(file.mimetype)) {
-          return cb(new BadRequestException('Only image files are allowed'), false)
+          return callback(new BadRequestException('Only image files are allowed'), false)
         }
-        cb(null, true)
+        callback(null, true)
       },
     }),
   )
-  uploadFile(
-    @UploadedFile(
+  uploadImages(
+    @UploadedFiles(
       new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 3 * 1024 * 1024 }), // 3MB
-        ],
+        validators: [new MaxFileSizeValidator({ maxSize: MAX_SIZE_PER_IMAGE })],
       }),
     )
-    file: Express.Multer.File,
+    files: Array<Express.Multer.File>,
   ) {
     return {
-      message: 'Upload file successfully',
+      message: `Upload ${files.length} file(s) successfully`,
     }
   }
 }

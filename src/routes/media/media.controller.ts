@@ -8,7 +8,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common'
 import { FilesInterceptor } from '@nestjs/platform-express'
-import { FIELD_NAME, MAX_COUNT, MAX_SIZE_PER_IMAGE } from 'src/shared/constants/media.constant'
+import envConfig from 'src/shared/config'
+import { FIELD_NAME, MAX_COUNT, MAX_SIZE_PER_IMAGE, STATIC_MEDIA_PREFIX } from 'src/shared/constants/media.constant'
 
 @Controller('media')
 export class MediaController {
@@ -32,8 +33,8 @@ export class MediaController {
     )
     files: Array<Express.Multer.File>,
   ) {
-    return {
-      message: `Upload ${files.length} file(s) successfully`,
-    }
+    return files.map((file) => ({
+      url: `${envConfig.SERVER_URL}${STATIC_MEDIA_PREFIX}/${file.filename}`,
+    }))
   }
 }

@@ -30,6 +30,7 @@ const envConfigSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string(),
   GOOGLE_REDIRECT_URI: z.string(),
   GOOGLE_CLIENT_REDIRECT_URI: z.string(),
+  SERVER_URL: z.string(),
 })
 const parsedEnvConfig = envConfigSchema.safeParse(process.env)
 

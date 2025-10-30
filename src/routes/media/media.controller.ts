@@ -14,18 +14,15 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express'
 import type { Response } from 'express'
 import path from 'path'
-import envConfig from 'src/shared/config'
-import {
-  FIELD_NAME,
-  MAX_COUNT,
-  MAX_SIZE_PER_IMAGE,
-  STATIC_MEDIA_PREFIX,
-  UPLOAD_DIR,
-} from 'src/shared/constants/media.constant'
+import { MediaService } from 'src/routes/media/media.service'
+import { FIELD_NAME, MAX_COUNT, MAX_SIZE_PER_IMAGE, UPLOAD_DIR } from 'src/shared/constants/media.constant'
 import { IsPublic } from 'src/shared/decorators/auth.decorator'
+import { AwsS3Service } from 'src/shared/services/aws_s3.service'
 
 @Controller('media')
 export class MediaController {
+  constructor(private readonly mediaService: MediaService) {}
+
   @Post('images/upload')
   @UseInterceptors(
     FilesInterceptor(FIELD_NAME, MAX_COUNT, {
@@ -46,9 +43,7 @@ export class MediaController {
     )
     files: Array<Express.Multer.File>,
   ) {
-    return files.map((file) => ({
-      url: `${envConfig.SERVER_URL}${STATIC_MEDIA_PREFIX}/${file.filename}`,
-    }))
+    return this.mediaService.uploadImagesToS3(files)
   }
 
   @Get('static/:filename')

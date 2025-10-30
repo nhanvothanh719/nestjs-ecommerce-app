@@ -31,6 +31,10 @@ const envConfigSchema = z.object({
   GOOGLE_REDIRECT_URI: z.string(),
   GOOGLE_CLIENT_REDIRECT_URI: z.string(),
   SERVER_URL: z.string(),
+  AWS_REGION: z.string(),
+  AWS_S3_ACCESS_KEY: z.string(),
+  AWS_S3_SECRET_ACCESS_KEY: z.string(),
+  AWS_S3_BUCKET_NAME: z.string(),
 })
 const parsedEnvConfig = envConfigSchema.safeParse(process.env)
 

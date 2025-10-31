@@ -7,6 +7,7 @@ import {
   GetPaginatedBrandsListResponseType,
   UpdateBrandRequestBodyType,
 } from 'src/routes/brand/brand.model'
+import { ALL_LANGUAGE_CODE } from 'src/shared/constants/lang.constant'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()
@@ -15,7 +16,7 @@ export class BrandRepository {
 
   async getPaginatedList(
     paginationData: GetPaginatedBrandsListRequestQueryType,
-    languageId?: string,
+    languageId: string,
   ): Promise<GetPaginatedBrandsListResponseType> {
     const { limit, page } = paginationData
     const skip = (page - 1) * limit
@@ -28,7 +29,7 @@ export class BrandRepository {
       take: limit,
       include: {
         brandTranslations: {
-          where: languageId ? { languageId, deletedAt: null } : { deletedAt: null },
+          where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
         },
       },
       orderBy: {
@@ -41,7 +42,7 @@ export class BrandRepository {
     return { totalItems, data, limit, page, totalPages }
   }
 
-  async findById(id: number, languageId?: string): Promise<GetBrandDetailsResponseType | null> {
+  async findById(id: number, languageId: string): Promise<GetBrandDetailsResponseType | null> {
     return await this.prismaService.brand.findUnique({
       where: {
         id,
@@ -49,7 +50,7 @@ export class BrandRepository {
       },
       include: {
         brandTranslations: {
-          where: languageId ? { deletedAt: null, languageId } : { deletedAt: null },
+          where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
         },
       },
     })

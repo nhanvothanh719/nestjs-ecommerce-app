@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common'
+import { I18nContext, I18nService } from 'nestjs-i18n'
+import { I18nTranslations } from 'src/generated/i18n.generated'
 import {
   CreateBrandRequestBodyType,
   GetBrandDetailsResponseType,
@@ -13,16 +15,24 @@ import { ResponseMessageType } from 'src/shared/models/response.model'
 
 @Injectable()
 export class BrandService {
-  constructor(private readonly brandRepository: BrandRepository) {}
+  constructor(
+    private readonly brandRepository: BrandRepository,
+    private readonly i18n: I18nService<I18nTranslations>,
+  ) {}
 
   getPaginatedList(
     paginationData: GetPaginatedBrandsListRequestQueryType,
   ): Promise<GetPaginatedBrandsListResponseType> {
-    return this.brandRepository.getPaginatedList(paginationData)
+    const languageId = I18nContext.current()?.lang as string
+    return this.brandRepository.getPaginatedList(paginationData, languageId)
   }
 
   async findById(id: number): Promise<GetBrandDetailsResponseType> {
-    const brand = await this.brandRepository.findById(id)
+    // MEMO: Dùng để test i18n
+    // const lang = I18nContext.current()?.lang
+    // console.log('>>> Test: ', this.i18n.t('error.NOT_FOUND', { lang }))
+    const languageId = I18nContext.current()?.lang as string
+    const brand = await this.brandRepository.findById(id, languageId)
     if (!brand) throw NotFoundRecordException
     return brand
   }

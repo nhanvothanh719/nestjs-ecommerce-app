@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   MaxFileSizeValidator,
@@ -43,6 +44,12 @@ export class MediaController {
     files: Array<Express.Multer.File>,
   ) {
     return this.mediaService.uploadImagesToS3(files)
+  }
+
+  @Post('images/upload/presigned-url')
+  @IsPublic()
+  async createPresignedUrl(@Body() body: { filename: string }) {
+    return this.mediaService.getPresignedUrl(body)
   }
 
   @Get('static/:filename')

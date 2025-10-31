@@ -368,6 +368,7 @@ model SKU {
 
 model Brand {
   id                Int                @id @default(autoincrement())
+  name              String             @db.VarChar(500)
   logo              String             @db.VarChar(1000)
   products          Product[]
   brandTranslations BrandTranslation[]

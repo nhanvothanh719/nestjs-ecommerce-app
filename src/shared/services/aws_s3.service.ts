@@ -35,7 +35,7 @@ export class AwsS3Service {
     filename: string
     filepath: string
     contentType: string
-  }): Promise<CompleteMultipartUploadCommandOutput> | undefined {
+  }): Promise<CompleteMultipartUploadCommandOutput> {
     try {
       const parallelUploads3 = new Upload({
         client: this.s3,

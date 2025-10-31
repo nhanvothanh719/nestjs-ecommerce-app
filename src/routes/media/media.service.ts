@@ -8,7 +8,7 @@ import { RequiredFileException } from 'src/routes/media/media.error'
 export class MediaService {
   constructor(private readonly s3Service: AwsS3Service) {}
 
-  async uploadImagesToS3(files: Array<Express.Multer.File>): Promise<({ url: string | undefined } | undefined)[]> {
+  async uploadImagesToS3(files: Array<Express.Multer.File>): Promise<{ url: string | undefined }[]> {
     if (!files || files.length === 0) {
       throw RequiredFileException
     }
@@ -21,7 +21,7 @@ export class MediaService {
           filepath: file.path,
           contentType: file.mimetype,
         })
-        return uploadResult ? uploadResult.then((res) => ({ url: res.Location })) : Promise.resolve(undefined)
+        return uploadResult.then((res) => ({ url: res.Location }))
       }),
     ])
 

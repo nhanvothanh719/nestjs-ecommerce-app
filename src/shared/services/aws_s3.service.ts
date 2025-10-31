@@ -1,5 +1,5 @@
 import { Upload } from '@aws-sdk/lib-storage'
-import { PutObjectCommand, S3 } from '@aws-sdk/client-s3'
+import { CompleteMultipartUploadCommandOutput, PutObjectCommand, S3 } from '@aws-sdk/client-s3'
 import { Injectable } from '@nestjs/common'
 import envConfig from 'src/shared/config'
 import { readFileSync } from 'fs'
@@ -27,7 +27,15 @@ export class AwsS3Service {
    * Upload file lên AWS S3 sử dụng cơ chế multipart upload
    * Document: https://www.npmjs.com/package/@aws-sdk/lib-storage
    */
-  uploadFile({ filename, filepath, contentType }: { filename: string; filepath: string; contentType: string }) {
+  uploadFile({
+    filename,
+    filepath,
+    contentType,
+  }: {
+    filename: string
+    filepath: string
+    contentType: string
+  }): Promise<CompleteMultipartUploadCommandOutput> | undefined {
     try {
       const parallelUploads3 = new Upload({
         client: this.s3,
@@ -59,10 +67,11 @@ export class AwsS3Service {
       return parallelUploads3.done()
     } catch (error) {
       console.error(error)
+      throw error
     }
   }
 
-  createPresignedUrlWithS3Client(filename: string) {
+  createPresignedUrlWithS3Client(filename: string): Promise<string> {
     // MEMO: 'application/octet-stream': binary data whose true type is unknown
     const contentType = mime.lookup(filename) || 'application/octet-stream'
     const command = new PutObjectCommand({

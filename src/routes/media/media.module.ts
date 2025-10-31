@@ -32,8 +32,12 @@ const storage = multer.diskStorage({
 export class MediaModule {
   constructor() {
     // Tạo folder `/upload` trong trường hợp chưa có khi run app
-    if (!existsSync(UPLOAD_DIR)) {
-      mkdirSync(UPLOAD_DIR, { recursive: true })
+    try {
+      if (!existsSync(UPLOAD_DIR)) {
+        mkdirSync(UPLOAD_DIR, { recursive: true })
+      }
+    } catch (error) {
+      throw new Error(`Failed to create upload directory at ${UPLOAD_DIR}: ${error.message}`)
     }
   }
 }

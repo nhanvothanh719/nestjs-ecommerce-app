@@ -2,22 +2,26 @@ import { Injectable } from '@nestjs/common'
 import { AwsS3Service } from 'src/shared/services/aws_s3.service'
 import { unlink } from 'fs/promises'
 import { generateFileName } from 'src/shared/helpers'
+import { RequiredFileException } from 'src/routes/media/media.error'
 
 @Injectable()
 export class MediaService {
   constructor(private readonly s3Service: AwsS3Service) {}
 
-  async uploadImagesToS3(files: Array<Express.Multer.File>) {
+  async uploadImagesToS3(files: Array<Express.Multer.File>): Promise<({ url: string | undefined } | undefined)[]> {
+    if (!files || files.length === 0) {
+      throw RequiredFileException
+    }
+
     // Upload images to AWS S3
     const result = await Promise.all([
       ...files.map((file) => {
-        return this.s3Service
-          .uploadFile({
-            filename: 'images/' + file.filename,
-            filepath: file.path,
-            contentType: file.mimetype,
-          })
-          ?.then((res) => ({ url: res.Location }))
+        const uploadResult = this.s3Service.uploadFile({
+          filename: 'images/' + file.filename,
+          filepath: file.path,
+          contentType: file.mimetype,
+        })
+        return uploadResult ? uploadResult.then((res) => ({ url: res.Location })) : Promise.resolve(undefined)
       }),
     ])
 

@@ -1,21 +1,5 @@
-import { CategoryTranslationSchema } from 'src/routes/category-translation/category-translation.model'
+import { CategorySchema, CategoryWithTranslationsSchema } from 'src/shared/models/category.model'
 import * as z from 'zod'
-
-export const CategorySchema = z.object({
-  id: z.number(),
-  name: z.string().max(500),
-  logo: z.string().nullable(),
-  parentCategoryId: z.number().nullable(),
-  createdByUserId: z.number().nullable(),
-  updatedByUserId: z.number().nullable(),
-  deletedAt: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
-
-export const CategoryWithTranslationsSchema = CategorySchema.extend({
-  categoryTranslations: z.array(CategoryTranslationSchema),
-})
 
 export const GetCategoriesListRequestQuerySchema = z.object({
   parentCategoryId: z.coerce.number().int().positive().optional(),
@@ -42,8 +26,6 @@ export const CreateCategoryRequestBodySchema = CategorySchema.pick({
 
 export const UpdateCategoryRequestBodySchema = CreateCategoryRequestBodySchema
 
-export type CategoryType = z.infer<typeof CategorySchema>
-export type CategoryWithTranslationsType = z.infer<typeof CategoryWithTranslationsSchema>
 export type GetCategoriesListRequestQueryType = z.infer<typeof GetCategoriesListRequestQuerySchema>
 export type GetCategoriesListResponseType = z.infer<typeof GetCategoriesListResponseSchema>
 export type GetCategoryRequestParamsType = z.infer<typeof GetCategoryRequestParamsSchema>

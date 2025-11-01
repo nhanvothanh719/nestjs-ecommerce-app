@@ -1,17 +1,5 @@
+import { CategoryTranslationSchema } from 'src/shared/models/category-translation.model'
 import * as z from 'zod'
-
-export const CategoryTranslationSchema = z.object({
-  id: z.number(),
-  categoryId: z.number(),
-  languageId: z.string(),
-  name: z.string().max(500),
-  description: z.string().max(5000),
-  createdByUserId: z.number().nullable(),
-  updatedByUserId: z.number().nullable(),
-  deletedAt: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
 
 export const GetCategoryTranslationRequestParamsSchema = z
   .object({
@@ -30,7 +18,6 @@ export const CreateCategoryTranslationRequestBodySchema = CategoryTranslationSch
 
 export const UpdateCategoryTranslationRequestBodySchema = CreateCategoryTranslationRequestBodySchema
 
-export type CategoryTranslationType = z.infer<typeof CategoryTranslationSchema>
 export type GetCategoryTranslationRequestParamsType = z.infer<typeof GetCategoryTranslationRequestParamsSchema>
 export type GetCategoryTranslationDetailsResponseType = z.infer<typeof GetCategoryTranslationDetailsResponseSchema>
 export type CreateCategoryTranslationRequestBodyType = z.infer<typeof CreateCategoryTranslationRequestBodySchema>

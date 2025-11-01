@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import {
-  BrandType,
   CreateBrandRequestBodyType,
   GetBrandDetailsResponseType,
   GetPaginatedBrandsListRequestQueryType,
@@ -8,6 +7,7 @@ import {
   UpdateBrandRequestBodyType,
 } from 'src/routes/brand/brand.model'
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/lang.constant'
+import { BrandType } from 'src/shared/models/brand.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()

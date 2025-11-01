@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import {
-  CategoryType,
   CreateCategoryRequestBodyType,
   GetCategoriesListResponseType,
   GetCategoryDetailsResponseType,
   UpdateCategoryRequestBodyType,
 } from 'src/routes/category/category.model'
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/lang.constant'
+import { CategoryType } from 'src/shared/models/category.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()

@@ -116,7 +116,7 @@ export const CreateProductRequestBodySchema = ProductSchema.pick({
 
     let incorrectIndex = -1
     const isCorrectSKUsList = skus.every((sku, idx) => {
-      const isCorrectSKUValue = sku.value === generateSKUs[idx].value
+      const isCorrectSKUValue = sku.value === generatedSKUs[idx].value
       if (!isCorrectSKUValue) {
         incorrectIndex = idx
         return false

@@ -217,6 +217,7 @@ model Product {
   brandId             Int
   brand               Brand                @relation(fields: [brandId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   images              String[]
+  publishedAt         DateTime?
   categories          Category[]
   variants            Variant[]
   skus                SKU[]
@@ -348,7 +349,7 @@ model SKU {
   value               String               @db.VarChar(500)
   price               Float
   stock               Int
-  images              String[]
+  image               String
   productId           Int
   product             Product              @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   variantOptions      VariantOption[]

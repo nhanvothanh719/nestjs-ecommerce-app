@@ -208,6 +208,7 @@ model Role {
 
 model Product {
   id                  Int                  @id @default(autoincrement())
+  name                String               @db.VarChar(500)
   basePrice           Float
   virtualPrice        Float
   brandId             Int

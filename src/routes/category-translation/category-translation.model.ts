@@ -5,7 +5,7 @@ export const CategoryTranslationSchema = z.object({
   categoryId: z.number(),
   languageId: z.string(),
   name: z.string().max(500),
-  description: z.string(),
+  description: z.string().max(5000),
   createdByUserId: z.number().nullable(),
   updatedByUserId: z.number().nullable(),
   deletedAt: z.date().nullable(),
@@ -26,7 +26,7 @@ export const CreateCategoryTranslationRequestBodySchema = CategoryTranslationSch
   languageId: true,
   name: true,
   description: true,
-})
+}).strict()
 
 export const UpdateCategoryTranslationRequestBodySchema = CreateCategoryTranslationRequestBodySchema
 

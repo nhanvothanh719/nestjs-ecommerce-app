@@ -3,7 +3,7 @@ import * as z from 'zod'
 
 export const CategorySchema = z.object({
   id: z.number(),
-  name: z.string(),
+  name: z.string().max(500),
   logo: z.string().nullable(),
   parentCategoryId: z.number().nullable(),
   createdByUserId: z.number().nullable(),
@@ -22,7 +22,7 @@ export const GetCategoriesListRequestQuerySchema = z.object({
 })
 
 export const GetCategoriesListResponseSchema = z.object({
-  data: z.array(CategorySchema),
+  data: z.array(CategoryWithTranslationsSchema),
   totalItems: z.number(),
 })
 
@@ -38,7 +38,7 @@ export const CreateCategoryRequestBodySchema = CategorySchema.pick({
   name: true,
   logo: true,
   parentCategoryId: true,
-})
+}).strict()
 
 export const UpdateCategoryRequestBodySchema = CreateCategoryRequestBodySchema
 

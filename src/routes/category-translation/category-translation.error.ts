@@ -6,7 +6,7 @@ const CATEGORY_ID_PATH = 'categoryId'
 export const AlreadyExistedCategoryTranslationException = new UnprocessableEntityException([
   {
     path: LANGUAGE_ID_PATH,
-    message: 'Error',
+    message: 'Error.AlreadyExistedCategoryTranslation',
   },
 ])
 

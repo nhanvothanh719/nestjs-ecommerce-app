@@ -24,7 +24,12 @@ export const CreateBrandRequestBodySchema = BrandSchema.pick({
   logo: true,
 }).strict()
 
-export const UpdateBrandRequestBodySchema = CreateBrandRequestBodySchema
+export const UpdateBrandRequestBodySchema = BrandSchema.pick({
+  name: true,
+  logo: true,
+})
+  .partial()
+  .strict()
 
 export type GetPaginatedBrandsListRequestQueryType = z.infer<typeof GetPaginatedBrandsListRequestQuerySchema>
 export type GetPaginatedBrandsListResponseType = z.infer<typeof GetPaginatedBrandsListResponseSchema>

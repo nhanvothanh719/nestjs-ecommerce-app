@@ -16,7 +16,12 @@ export const CreateCategoryTranslationRequestBodySchema = CategoryTranslationSch
   description: true,
 }).strict()
 
-export const UpdateCategoryTranslationRequestBodySchema = CreateCategoryTranslationRequestBodySchema
+export const UpdateCategoryTranslationRequestBodySchema = CategoryTranslationSchema.pick({
+  name: true,
+  description: true,
+})
+  .partial()
+  .strict()
 
 export type GetCategoryTranslationRequestParamsType = z.infer<typeof GetCategoryTranslationRequestParamsSchema>
 export type GetCategoryTranslationDetailsResponseType = z.infer<typeof GetCategoryTranslationDetailsResponseSchema>

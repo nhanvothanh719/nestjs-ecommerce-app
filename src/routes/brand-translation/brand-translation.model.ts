@@ -16,7 +16,10 @@ export const CreateBrandTranslationRequestBodySchema = BrandTranslationSchema.pi
   description: true,
 }).strict()
 
-export const UpdateBrandTranslationRequestBodySchema = CreateBrandTranslationRequestBodySchema
+export const UpdateBrandTranslationRequestBodySchema = BrandTranslationSchema.pick({
+  name: true,
+  description: true,
+}).partial().strict()
 
 export type GetBrandTranslationDetailsResponseType = z.infer<typeof GetBrandTranslationDetailsResponseSchema>
 export type CreateBrandTranslationRequestBodyType = z.infer<typeof CreateBrandTranslationRequestBodySchema>

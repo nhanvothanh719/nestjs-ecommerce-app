@@ -4,7 +4,7 @@ import * as z from 'zod'
 export const CategorySchema = z.object({
   id: z.number(),
   name: z.string().max(500),
-  logo: z.string().nullable(),
+  logo: z.url().nullable(),
   parentCategoryId: z.number().nullable(),
   createdByUserId: z.number().nullable(),
   updatedByUserId: z.number().nullable(),

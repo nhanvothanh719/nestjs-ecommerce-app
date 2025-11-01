@@ -24,7 +24,12 @@ export const CreateCategoryRequestBodySchema = CategorySchema.pick({
   parentCategoryId: true,
 }).strict()
 
-export const UpdateCategoryRequestBodySchema = CreateCategoryRequestBodySchema
+export const UpdateCategoryRequestBodySchema = CategorySchema.pick({
+  name: true,
+  logo: true,
+})
+  .partial()
+  .strict()
 
 export type GetCategoriesListRequestQueryType = z.infer<typeof GetCategoriesListRequestQuerySchema>
 export type GetCategoriesListResponseType = z.infer<typeof GetCategoriesListResponseSchema>

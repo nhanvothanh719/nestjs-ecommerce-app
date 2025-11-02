@@ -65,8 +65,26 @@ export const ProductSchema = z.object({
 // Dành cho client và guest
 export const GetPaginatedProductsListRequestQuerySchema = GetPaginatedItemsListRequestQuerySchema.extend({
   name: z.string().optional(),
-  brandIds: z.array(z.coerce.number().int().positive()).optional(),
-  categories: z.array(z.coerce.number().int().positive()).optional(),
+  brandIds: z
+    .preprocess((value) => {
+      // Ex: ?brandIds=1
+      if (typeof value === 'string') {
+        return [Number(value)]
+      }
+      // Ex: ?brandIds=1&brandIds=2...
+      return value
+    }, z.array(z.coerce.number().int().positive()))
+    .optional(),
+  categories: z
+    .preprocess((value) => {
+      // Ex: ?categories=1
+      if (typeof value === 'string') {
+        return [Number(value)]
+      }
+      // Ex: ?categories=1&categories=2...
+      return value
+    }, z.array(z.coerce.number().int().positive()))
+    .optional(),
   minPrice: z.coerce.number().int().positive().optional(),
   maxPrice: z.coerce.number().int().positive().optional(),
   createdByUserId: z.coerce.number().int().positive().optional(),

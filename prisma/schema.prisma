@@ -226,6 +226,7 @@ model Product {
   skus                SKU[]
   reviews             Review[]
   productTranslations ProductTranslation[]
+  orders              Order[]
 
   createdByUserId Int?
   createdBy   User? @relation("ProductCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull, onUpdate: NoAction)
@@ -401,11 +402,12 @@ model ProductSKUSnapshot {
 }
 
 model Order {
-  id     Int                  @id @default(autoincrement())
-  userId Int
-  user   User                 @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  status OrderStatus
-  items  ProductSKUSnapshot[]
+  id       Int                  @id @default(autoincrement())
+  userId   Int
+  user     User                 @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  status   OrderStatus
+  items    ProductSKUSnapshot[]
+  products Product[]
 
   createdByUserId Int?
   createdBy   User? @relation("OrderCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull, onUpdate: NoAction)
@@ -418,6 +420,7 @@ model Order {
 
   // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
   @@index([deletedAt])
+  @@index([status, deletedAt])
 }
 
 model Review {

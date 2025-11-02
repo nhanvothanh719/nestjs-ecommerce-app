@@ -97,15 +97,15 @@ async function bootstrap() {
 }
 
 const updateRolePermissions = async (permissionIds: { id: number }[], roleName: string) => {
-  // Update các permissions của ADMIN role
-  const adminRole = await prismaService.role.findFirstOrThrow({
+  // Update permissions for the specified role
+  const role = await prismaService.role.findFirstOrThrow({
     where: {
       name: roleName,
       deletedAt: null,
     },
   })
   await prismaService.role.update({
-    where: { id: adminRole.id },
+    where: { id: role.id },
     data: {
       permissions: {
         set: permissionIds,

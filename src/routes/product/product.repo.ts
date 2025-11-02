@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { Prisma } from 'generated/prisma'
 import {
   CreateProductRequestBodyType,
   GetPaginatedProductsListRequestQueryType,
@@ -10,21 +11,37 @@ import {
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/lang.constant'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
+interface IGetProductsList {
+  limit: number
+  page: number
+  name?: string
+  brandIds?: number[]
+  categories?: number[]
+  minPrice?: number
+  maxPrice?: number
+  createdByUserId?: number
+  isPublic?: boolean
+}
+
 @Injectable()
 export class ProductRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getPaginatedList(
-    query: GetPaginatedProductsListRequestQueryType,
+    { limit, page, name, brandIds, categories, minPrice, maxPrice, createdByUserId, isPublic }: IGetProductsList,
     languageId: string,
   ): Promise<GetPaginatedProductsListResponseType> {
-    const { page, limit } = query
     const skip = (page - 1) * limit
+    const whereCondition: Prisma.ProductWhereInput = {
+      deletedAt: null,
+      createdByUserId: createdByUserId ?? undefined,
+      publishedAt: isPublic ? { lte: new Date(), not: null } : undefined,
+    }
     const $countTotalItems = this.prismaService.product.count({
-      where: { deletedAt: null },
+      where: whereCondition,
     })
     const $getPaginatedList = this.prismaService.product.findMany({
-      where: { deletedAt: null },
+      where: whereCondition,
       skip,
       take: limit,
       include: {
@@ -50,11 +67,12 @@ export class ProductRepository {
     return { totalItems, data, limit, page, totalPages }
   }
 
-  findById(id: number, languageId: string): Promise<GetProductDetailsResponseType | null> {
+  getDetails({ id, isPublic }: { id: number; isPublic?: boolean }, languageId: string) {
     return this.prismaService.product.findUnique({
       where: {
         id,
         deletedAt: null,
+        publishedAt: isPublic ? { lte: new Date(), not: null } : undefined,
       },
       include: {
         productTranslations: {
@@ -96,6 +114,15 @@ export class ProductRepository {
             },
           },
         },
+      },
+    })
+  }
+
+  findById(id: number): Promise<ProductType | null> {
+    return this.prismaService.product.findUnique({
+      where: {
+        id,
+        deletedAt: null,
       },
     })
   }

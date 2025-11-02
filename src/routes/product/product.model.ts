@@ -62,13 +62,22 @@ export const ProductSchema = z.object({
   updatedAt: z.date(),
 })
 
+// Dành cho client và guest
 export const GetPaginatedProductsListRequestQuerySchema = GetPaginatedItemsListRequestQuerySchema.extend({
   name: z.string().optional(),
   brandIds: z.array(z.coerce.number().int().positive()).optional(),
   categories: z.array(z.coerce.number().int().positive()).optional(),
   minPrice: z.coerce.number().int().positive().optional(),
   maxPrice: z.coerce.number().int().positive().optional(),
+  createdByUserId: z.coerce.number().int().positive().optional(),
 }).strict()
+
+// Dành cho admin và seller
+export const ForManagementGetPaginatedProductsListRequestQuerySchema =
+  GetPaginatedProductsListRequestQuerySchema.extend({
+    isPublic: z.coerce.boolean().optional(),
+    createdByUserId: z.coerce.number().int().positive(), // Required!
+  })
 
 export const GetPaginatedProductsListResponseSchema = BasePaginatedItemsListResponseSchema.extend({
   data: z.array(
@@ -141,6 +150,9 @@ export type VariantType = z.infer<typeof VariantSchema>
 export type VariantsListType = z.infer<typeof VariantsListSchema>
 export type ProductType = z.infer<typeof ProductSchema>
 export type GetPaginatedProductsListRequestQueryType = z.infer<typeof GetPaginatedProductsListRequestQuerySchema>
+export type ForManagementGetPaginatedProductsListRequestQueryType = z.infer<
+  typeof ForManagementGetPaginatedProductsListRequestQuerySchema
+>
 export type GetPaginatedProductsListResponseType = z.infer<typeof GetPaginatedProductsListResponseSchema>
 export type GetProductRequestParamsType = z.infer<typeof GetProductRequestParamsSchema>
 export type GetProductDetailsResponseType = z.infer<typeof GetProductDetailsResponseSchema>

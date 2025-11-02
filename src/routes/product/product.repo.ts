@@ -222,10 +222,11 @@ export class ProductRepository {
         },
       }),
       ...toUpdateSKUs.map((item) => {
+        const { id: skuId, ...skuData } = item
         return this.prismaService.sKU.update({
-          where: { id: item.id },
+          where: { id: skuId },
           data: {
-            ...item,
+            ...skuData,
             updatedByUserId,
           },
         })

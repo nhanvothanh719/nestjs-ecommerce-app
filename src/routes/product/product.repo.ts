@@ -117,7 +117,7 @@ export class ProductRepository {
         },
         skus: {
           createMany: {
-            data: skus,
+            data: skus.map((sku) => ({ ...sku, createdByUserId })),
           },
         },
       },
@@ -205,7 +205,7 @@ export class ProductRepository {
           ...productData,
           updatedByUserId,
           categories: {
-            connect: categories.map((categoryId) => ({ id: categoryId })),
+            set: categories.map((categoryId) => ({ id: categoryId })),
           },
         },
       }),
@@ -248,9 +248,10 @@ export class ProductRepository {
     isHardDelete?: boolean
   }): Promise<ProductType> {
     if (isHardDelete) {
-      const $deleteProduct = this.prismaService.product.delete({ where: { id } })
-      const $deleteSKUs = this.prismaService.sKU.deleteMany({ where: { productId: id } })
-      const [product] = await Promise.all([$deleteProduct, $deleteSKUs])
+      const [product] = await this.prismaService.$transaction([
+        this.prismaService.product.delete({ where: { id } }),
+        this.prismaService.sKU.deleteMany({ where: { productId: id } }),
+      ])
       return product
     }
 

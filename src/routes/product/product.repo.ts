@@ -248,9 +248,9 @@ export class ProductRepository {
     isHardDelete?: boolean
   }): Promise<ProductType> {
     if (isHardDelete) {
-      const [product] = await this.prismaService.$transaction([
-        this.prismaService.product.delete({ where: { id } }),
+      const [, product] = await this.prismaService.$transaction([
         this.prismaService.sKU.deleteMany({ where: { productId: id } }),
+        this.prismaService.product.delete({ where: { id } }),
       ])
       return product
     }

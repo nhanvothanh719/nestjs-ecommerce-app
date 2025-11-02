@@ -24,7 +24,7 @@ export class ProductManagementService {
     actorRoleName: string
   }): Promise<GetPaginatedProductsListResponseType> {
     const { query, actorUserId, actorRoleName } = props
-    const { page, limit, createdByUserId } = query
+    const { page, limit, createdByUserId, isPublic } = query
     const languageId = I18nContext.current()?.lang as string
 
     this.checkActorPrivilege({
@@ -33,7 +33,7 @@ export class ProductManagementService {
       createdByUserId: query.createdByUserId,
     })
 
-    return this.productRepository.getPaginatedList({ page, limit, createdByUserId }, languageId)
+    return this.productRepository.getPaginatedList({ page, limit, createdByUserId, isPublic }, languageId)
   }
 
   async findById(props: {

@@ -11,7 +11,6 @@ import {
   UpdateProductRequestBodyDTO,
 } from 'src/routes/product/product.dto'
 import { ActiveUser } from 'src/shared/decorators/active-user.decorator'
-import { IsPublic } from 'src/shared/decorators/auth.decorator'
 import { ResponseMessageDTO } from 'src/shared/dtos/response.dto'
 import type { AccessTokenPayload } from 'src/shared/types/jwt.type'
 
@@ -20,7 +19,6 @@ export class ProductManagementController {
   constructor(private readonly productManagementService: ProductManagementService) {}
 
   @Get()
-  @IsPublic()
   @ZodResponse({ type: GetPaginatedProductsListResponseDTO })
   getPaginatedList(
     @Query() query: ForManagementGetPaginatedProductsListRequestQueryDTO,
@@ -34,9 +32,11 @@ export class ProductManagementController {
   }
 
   @Get(':id')
-  @IsPublic()
   @ZodResponse({ type: GetProductDetailsResponseDTO })
-  findById(@Param() params: GetProductRequestParamsDTO, @ActiveUser() user: AccessTokenPayload) {
+  findById(
+    @Param() params: GetProductRequestParamsDTO,
+    @ActiveUser() user: AccessTokenPayload,
+  ) {
     return this.productManagementService.findById({
       id: params.id,
       actorRoleName: user.roleName,

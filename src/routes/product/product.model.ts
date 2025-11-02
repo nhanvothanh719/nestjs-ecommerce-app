@@ -75,7 +75,7 @@ export const GetPaginatedProductsListRequestQuerySchema = GetPaginatedItemsListR
 // Dành cho admin và seller
 export const ForManagementGetPaginatedProductsListRequestQuerySchema =
   GetPaginatedProductsListRequestQuerySchema.extend({
-    isPublic: z.coerce.boolean().optional(),
+    isPublic: z.preprocess((value) => value === 'true' || value === '1', z.boolean()).optional(),
     createdByUserId: z.coerce.number().int().positive(), // Required!
   })
 

@@ -32,10 +32,25 @@ export class ProductRepository {
     languageId: string,
   ): Promise<GetPaginatedProductsListResponseType> {
     const skip = (page - 1) * limit
-    const whereCondition: Prisma.ProductWhereInput = {
+    let whereCondition: Prisma.ProductWhereInput = {
       deletedAt: null,
       createdByUserId: createdByUserId ?? undefined,
-      publishedAt: isPublic ? { lte: new Date(), not: null } : undefined,
+    }
+    const now = new Date()
+    if (isPublic === true) {
+      // isPublic === true -> Display published product
+      // product.publicAt !== null && product.publicAt <= now
+      whereCondition.publishedAt = {
+        not: null,
+        lte: now,
+      }
+    } else if (isPublic === false) {
+      // isPublic === false -> Display unpublished product
+      // product.publicAt === null || product.publicAt > now
+      whereCondition = {
+        ...whereCondition,
+        OR: [{ publishedAt: null }, { publishedAt: { gt: now } }],
+      }
     }
     const $countTotalItems = this.prismaService.product.count({
       where: whereCondition,
@@ -68,12 +83,28 @@ export class ProductRepository {
   }
 
   getDetails({ id, isPublic }: { id: number; isPublic?: boolean }, languageId: string) {
+    let whereCondition: Prisma.ProductWhereUniqueInput = {
+      id,
+      deletedAt: null,
+    }
+    const now = new Date()
+    if (isPublic === true) {
+      // isPublic === true -> Display published product
+      // product.publicAt !== null && product.publicAt <= now
+      whereCondition.publishedAt = {
+        not: null,
+        lte: now,
+      }
+    } else if (isPublic === false) {
+      // isPublic === false -> Display unpublished product
+      // product.publicAt === null || product.publicAt > now
+      whereCondition = {
+        ...whereCondition,
+        OR: [{ publishedAt: null }, { publishedAt: { gt: now } }],
+      }
+    }
     return this.prismaService.product.findUnique({
-      where: {
-        id,
-        deletedAt: null,
-        publishedAt: isPublic ? { lte: new Date(), not: null } : undefined,
-      },
+      where: whereCondition,
       include: {
         productTranslations: {
           where:

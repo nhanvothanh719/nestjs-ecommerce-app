@@ -9,6 +9,8 @@ import {
   UpdateProductRequestBodyType,
 } from 'src/routes/product/product.model'
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/lang.constant'
+import { OrderStatus } from 'src/shared/constants/order.constant'
+import { OrderByType, ProductSortField, ProductSortFieldType } from 'src/shared/constants/others.constants'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 interface IGetProductsList {
@@ -21,6 +23,8 @@ interface IGetProductsList {
   maxPrice?: number
   createdByUserId?: number
   isPublic?: boolean
+  orderBy: OrderByType
+  sortedBy: ProductSortFieldType
 }
 
 @Injectable()
@@ -28,7 +32,19 @@ export class ProductRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getPaginatedList(
-    { limit, page, name, brandIds, categories, minPrice, maxPrice, createdByUserId, isPublic }: IGetProductsList,
+    {
+      limit,
+      page,
+      name,
+      brandIds,
+      categories,
+      minPrice,
+      maxPrice,
+      createdByUserId,
+      isPublic,
+      orderBy,
+      sortedBy,
+    }: IGetProductsList,
     languageId: string,
   ): Promise<GetPaginatedProductsListResponseType> {
     const skip = (page - 1) * limit
@@ -85,6 +101,24 @@ export class ProductRepository {
       }
     }
 
+    //
+    let customOrderBy: Prisma.ProductOrderByWithRelationInput | Prisma.ProductOrderByWithRelationInput[] = {
+      createdAt: orderBy,
+    }
+
+    if (sortedBy === ProductSortField.Price) {
+      customOrderBy = {
+        basePrice: orderBy,
+      }
+    } else if (sortedBy === ProductSortField.Sale) {
+      // MEMO: Sắp xếp dựa theo số lượng của order
+      customOrderBy = {
+        orders: {
+          _count: orderBy,
+        },
+      }
+    }
+
     const $countTotalItems = this.prismaService.product.count({
       where: whereCondition,
     })
@@ -94,20 +128,16 @@ export class ProductRepository {
       take: limit,
       include: {
         productTranslations: {
-          where:
-            languageId === ALL_LANGUAGE_CODE
-              ? {
-                  deletedAt: null,
-                }
-              : {
-                  deletedAt: null,
-                  languageId,
-                },
+          where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { deletedAt: null, languageId },
+        },
+        orders: {
+          where: {
+            deletedAt: null,
+            status: OrderStatus.DELIVERED,
+          },
         },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: customOrderBy,
     })
     const [totalItems, data] = await Promise.all([$countTotalItems, $getPaginatedList])
     const totalPages = Math.ceil(totalItems / limit)

@@ -1,6 +1,7 @@
 import { ProductTranslationSchema } from 'src/routes/product-translation/product-translation.model'
 import { generateSKUs } from 'src/routes/product/product.helper'
 import { SKUSchema, UpsertSKURequestBodySchema } from 'src/routes/product/sku.model'
+import { ProductSortField, OrderBy } from 'src/shared/constants/others.constants'
 import { BrandWithTranslationsSchema } from 'src/shared/models/brand.model'
 import { CategoryWithTranslationsSchema } from 'src/shared/models/category.model'
 import {
@@ -88,6 +89,10 @@ export const GetPaginatedProductsListRequestQuerySchema = GetPaginatedItemsListR
   minPrice: z.coerce.number().int().positive().optional(),
   maxPrice: z.coerce.number().int().positive().optional(),
   createdByUserId: z.coerce.number().int().positive().optional(),
+  orderBy: z.enum([OrderBy.Asc, OrderBy.Desc]).default(OrderBy.Asc),
+  sortedBy: z
+    .enum([ProductSortField.CreatedAt, ProductSortField.Price, ProductSortField.Sale])
+    .default(ProductSortField.CreatedAt),
 }).strict()
 
 // Dành cho admin và seller

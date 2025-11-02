@@ -5,9 +5,11 @@ import {
   GetPaginatedProductsListResponseSchema,
   GetProductDetailsResponseSchema,
   GetProductRequestParamsSchema,
+  ProductSchema,
   UpdateProductRequestBodySchema,
 } from 'src/routes/product/product.model'
 
+export class ProductDTO extends createZodDto(ProductSchema) {}
 export class GetPaginatedProductsListRequestQueryDTO extends createZodDto(GetPaginatedProductsListRequestQuerySchema) {}
 export class GetPaginatedProductsListResponseDTO extends createZodDto(GetPaginatedProductsListResponseSchema) {}
 export class GetProductRequestParamsDTO extends createZodDto(GetProductRequestParamsSchema) {}

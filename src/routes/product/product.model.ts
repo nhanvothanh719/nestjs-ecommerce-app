@@ -10,35 +10,37 @@ import {
 import * as z from 'zod'
 
 export const VariantSchema = z.object({
-  value: z.string(),
-  options: z.array(z.string()),
+  value: z.string().trim(),
+  options: z.array(z.string().trim()),
 })
 
 export const VariantsListSchema = z.array(VariantSchema).superRefine((variants, ctx) => {
   const seenVariantValuesSet = new Set<string>()
   variants.forEach((variant) => {
     // Check duplicate variant values
-    if (seenVariantValuesSet.has(variant.value)) {
+    const modifiedVariantValue = variant.value.toLowerCase()
+    if (seenVariantValuesSet.has(modifiedVariantValue)) {
       ctx.addIssue({
         code: 'custom',
         message: `${variant.value} has already existed in variants list`,
         path: ['variants'],
       })
     } else {
-      seenVariantValuesSet.add(variant.value)
+      seenVariantValuesSet.add(modifiedVariantValue)
     }
 
     // Check for duplicate options
     const seenVariantOptionsSet = new Set<string>()
     variant.options.forEach((option) => {
-      if (seenVariantOptionsSet.has(option)) {
+      const modifiedOption = option.toLowerCase()
+      if (seenVariantOptionsSet.has(modifiedOption)) {
         ctx.addIssue({
           code: 'custom',
           message: `${variant.value} has duplicated options`,
           path: ['variants'],
         })
       } else {
-        seenVariantOptionsSet.add(option)
+        seenVariantOptionsSet.add(modifiedOption)
       }
     })
   })
@@ -47,9 +49,9 @@ export const VariantsListSchema = z.array(VariantSchema).superRefine((variants, 
 export const ProductSchema = z.object({
   id: z.number(),
   publishedAt: z.coerce.date().nullable(),
-  name: z.string().min(1).max(500),
-  basePrice: z.number().positive(),
-  virtualPrice: z.number().positive(),
+  name: z.string().trim().min(1).max(500),
+  basePrice: z.number().min(0),
+  virtualPrice: z.number().min(0),
   brandId: z.number().positive(),
   images: z.array(z.string()),
   variants: VariantsListSchema,

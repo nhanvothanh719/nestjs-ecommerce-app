@@ -32,10 +32,12 @@ export class ProductRepository {
     languageId: string,
   ): Promise<GetPaginatedProductsListResponseType> {
     const skip = (page - 1) * limit
+
     let whereCondition: Prisma.ProductWhereInput = {
       deletedAt: null,
       createdByUserId: createdByUserId ?? undefined,
     }
+
     const now = new Date()
     if (isPublic === true) {
       // isPublic === true -> Display published product
@@ -52,6 +54,37 @@ export class ProductRepository {
         OR: [{ publishedAt: null }, { publishedAt: { gt: now } }],
       }
     }
+
+    if (name) {
+      whereCondition.name = {
+        contains: name,
+        mode: 'insensitive', // Không phân biệt chữ hoa, chữ thường
+      }
+    }
+
+    if (brandIds && brandIds.length) {
+      whereCondition.brandId = {
+        in: brandIds,
+      }
+    }
+
+    if (categories && categories.length) {
+      whereCondition.categories = {
+        some: {
+          id: {
+            in: categories,
+          },
+        },
+      }
+    }
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      whereCondition.basePrice = {
+        gte: minPrice,
+        lte: maxPrice,
+      }
+    }
+
     const $countTotalItems = this.prismaService.product.count({
       where: whereCondition,
     })

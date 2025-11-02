@@ -14,8 +14,7 @@ export class ProductService {
 
   getPaginatedList(query: GetPaginatedProductsListRequestQueryType): Promise<GetPaginatedProductsListResponseType> {
     const data = {
-      page: query.page,
-      limit: query.limit,
+      ...query,
       isPublic: true,
     }
     const languageId = I18nContext.current()?.lang as string

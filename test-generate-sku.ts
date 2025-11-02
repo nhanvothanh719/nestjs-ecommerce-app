@@ -35,16 +35,12 @@ const data: SentFromClientData = {
     categories: [1, 2, 3],
     variants: [
       {
-        value: 'Màu sắc',
-        options: ['Đen', 'Trắng', 'Xanh', 'Đỏ'],
+        value: 'color',
+        options: ['Black', 'White'],
       },
       {
-        value: 'Kích thước',
-        options: ['S', 'M', 'L', 'XL'],
-      },
-      {
-        value: 'Chất liệu',
-        options: ['Cotton', 'Polyester', 'Linen'],
+        value: 'size',
+        options: ['36', '37', '38', '39', '40'],
       },
     ],
   },
@@ -80,7 +76,7 @@ const generateSKUs = (variants: Variant[]): SKU[] => {
   const withDefaultValueSkus: SKU[] = combinations.map((value) => ({
     value,
     image: '',
-    price: 0,
+    price: 1,
     stock: 100,
   }))
 
@@ -88,4 +84,5 @@ const generateSKUs = (variants: Variant[]): SKU[] => {
 }
 
 data.skus = generateSKUs(data.product.variants)
-console.log(data)
+// console.log(data)
+console.log('>>> Copy this: ', JSON.stringify(data.skus))

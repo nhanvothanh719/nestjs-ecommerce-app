@@ -4,6 +4,8 @@ import { HTTPMethod } from 'src/shared/constants/permission.constant'
 import { RoleName } from 'src/shared/constants/role.constant'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
+const SELLER_MODULES = ['auth', 'media', 'product-management', 'product-translations', 'profile']
+
 const prismaService = new PrismaService()
 
 async function bootstrap() {
@@ -77,26 +79,39 @@ async function bootstrap() {
 
   // Lấy danh sách permissions từ database (sau khi update)
   const currentPermissions = await prismaService.permission.findMany({ where: { deletedAt: null } })
-  // Update các permissions của ADMIN role
-  const adminRole = await prismaService.role.findFirstOrThrow({
-    where: {
-      name: RoleName.Admin,
-      deletedAt: null,
-    },
-  })
-  await prismaService.role.update({
-    where: { id: adminRole.id },
-    data: {
-      permissions: {
-        set: currentPermissions.map((item) => ({ id: item.id })),
-      },
-    },
-  })
-  console.log('>>> Update permissions for Admin role successfully')
+
+  const adminPermissionIds = currentPermissions.map((item) => ({ id: item.id }))
+  const sellerPermissionIds = currentPermissions
+    .filter((item) => SELLER_MODULES.includes(item.module))
+    .map((item) => ({ id: item.id }))
+
+  const $updateAdminRolePermissions = updateRolePermissions(adminPermissionIds, RoleName.Admin)
+  const $updateSellerRolePermissions = updateRolePermissions(sellerPermissionIds, RoleName.Seller)
+
+  await Promise.all([$updateAdminRolePermissions, $updateSellerRolePermissions])
 
   // Shut down NestJS application and HTTP server
   await app.close()
   // MEMO: Exit code 0 indicates successful executions
   process.exit(0)
+}
+
+const updateRolePermissions = async (permissionIds: { id: number }[], roleName: string) => {
+  // Update permissions for the specified role
+  const role = await prismaService.role.findFirstOrThrow({
+    where: {
+      name: roleName,
+      deletedAt: null,
+    },
+  })
+  await prismaService.role.update({
+    where: { id: role.id },
+    data: {
+      permissions: {
+        set: permissionIds,
+      },
+    },
+  })
+  console.log(`>>> Update permissions for ${roleName} role successfully`)
 }
 bootstrap()

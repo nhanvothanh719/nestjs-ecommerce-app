@@ -9,6 +9,11 @@ generator client {
   output   = "../generated/prisma"
 }
 
+// Add the Generator: https://www.npmjs.com/package/prisma-json-types-generator
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -208,6 +213,7 @@ model Role {
 
 model Product {
   id                  Int                  @id @default(autoincrement())
+  name                String               @db.VarChar(500)
   basePrice           Float
   virtualPrice        Float
   brandId             Int
@@ -215,6 +221,7 @@ model Product {
   images              String[]
   publishedAt         DateTime?
   categories          Category[]
+  /// [CustomVariantsListType]
   variants            Json
   skus                SKU[]
   reviews             Review[]

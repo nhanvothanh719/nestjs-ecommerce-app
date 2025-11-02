@@ -249,11 +249,8 @@ export class ProductRepository {
     isHardDelete?: boolean
   }): Promise<ProductType> {
     if (isHardDelete) {
-      const [, product] = await this.prismaService.$transaction([
-        this.prismaService.sKU.deleteMany({ where: { productId: id } }),
-        this.prismaService.product.delete({ where: { id } }),
-      ])
-      return product
+      // MEMO: Khi xóa product thì các relations như: ProductTranslation, SKU cũng bị xóa theo (do set cascade)
+      return this.prismaService.product.delete({ where: { id } })
     }
 
     const now = new Date()
@@ -271,7 +268,14 @@ export class ProductRepository {
         updatedByUserId,
       },
     })
-    const [product] = await Promise.all([$softDeleteProduct, $softDeleteSKUs])
+    const $softDeleteProductTranslations = this.prismaService.productTranslation.updateMany({
+      where: { productId: id, deletedAt: null },
+      data: {
+        deletedAt: now,
+        updatedByUserId,
+      },
+    })
+    const [product] = await Promise.all([$softDeleteProduct, $softDeleteSKUs, $softDeleteProductTranslations])
     return product
   }
 }

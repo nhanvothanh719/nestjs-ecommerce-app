@@ -1,48 +1,142 @@
 import { Injectable } from '@nestjs/common'
+import { Prisma } from 'generated/prisma'
 import {
   CreateProductRequestBodyType,
-  GetPaginatedProductsListRequestQueryType,
   GetPaginatedProductsListResponseType,
   GetProductDetailsResponseType,
   ProductType,
   UpdateProductRequestBodyType,
 } from 'src/routes/product/product.model'
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/lang.constant'
+import { OrderStatus } from 'src/shared/constants/order.constant'
+import { OrderByType, ProductSortField, ProductSortFieldType } from 'src/shared/constants/others.constants'
 import { PrismaService } from 'src/shared/services/prisma.service'
+
+interface IGetProductsList {
+  limit: number
+  page: number
+  name?: string
+  brandIds?: number[]
+  categories?: number[]
+  minPrice?: number
+  maxPrice?: number
+  createdByUserId?: number
+  isPublic?: boolean
+  orderBy: OrderByType
+  sortedBy: ProductSortFieldType
+}
 
 @Injectable()
 export class ProductRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getPaginatedList(
-    query: GetPaginatedProductsListRequestQueryType,
+    {
+      limit,
+      page,
+      name,
+      brandIds,
+      categories,
+      minPrice,
+      maxPrice,
+      createdByUserId,
+      isPublic,
+      orderBy,
+      sortedBy,
+    }: IGetProductsList,
     languageId: string,
   ): Promise<GetPaginatedProductsListResponseType> {
-    const { page, limit } = query
     const skip = (page - 1) * limit
+
+    let whereCondition: Prisma.ProductWhereInput = {
+      deletedAt: null,
+      createdByUserId: createdByUserId ?? undefined,
+    }
+
+    const now = new Date()
+    if (isPublic === true) {
+      // isPublic === true -> Display published product
+      // product.publicAt !== null && product.publicAt <= now
+      whereCondition.publishedAt = {
+        not: null,
+        lte: now,
+      }
+    } else if (isPublic === false) {
+      // isPublic === false -> Display unpublished product
+      // product.publicAt === null || product.publicAt > now
+      whereCondition = {
+        ...whereCondition,
+        OR: [{ publishedAt: null }, { publishedAt: { gt: now } }],
+      }
+    }
+
+    if (name) {
+      whereCondition.name = {
+        contains: name,
+        mode: 'insensitive', // Không phân biệt chữ hoa, chữ thường
+      }
+    }
+
+    if (brandIds && brandIds.length) {
+      whereCondition.brandId = {
+        in: brandIds,
+      }
+    }
+
+    if (categories && categories.length) {
+      whereCondition.categories = {
+        some: {
+          id: {
+            in: categories,
+          },
+        },
+      }
+    }
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      whereCondition.basePrice = {
+        gte: minPrice,
+        lte: maxPrice,
+      }
+    }
+
+    //
+    let customOrderBy: Prisma.ProductOrderByWithRelationInput | Prisma.ProductOrderByWithRelationInput[] = {
+      createdAt: orderBy,
+    }
+
+    if (sortedBy === ProductSortField.Price) {
+      customOrderBy = {
+        basePrice: orderBy,
+      }
+    } else if (sortedBy === ProductSortField.Sale) {
+      // MEMO: Sắp xếp dựa theo số lượng của order
+      customOrderBy = {
+        orders: {
+          _count: orderBy,
+        },
+      }
+    }
+
     const $countTotalItems = this.prismaService.product.count({
-      where: { deletedAt: null },
+      where: whereCondition,
     })
     const $getPaginatedList = this.prismaService.product.findMany({
-      where: { deletedAt: null },
+      where: whereCondition,
       skip,
       take: limit,
       include: {
         productTranslations: {
-          where:
-            languageId === ALL_LANGUAGE_CODE
-              ? {
-                  deletedAt: null,
-                }
-              : {
-                  deletedAt: null,
-                  languageId,
-                },
+          where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { deletedAt: null, languageId },
+        },
+        orders: {
+          where: {
+            deletedAt: null,
+            status: OrderStatus.DELIVERED,
+          },
         },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: customOrderBy,
     })
     const [totalItems, data] = await Promise.all([$countTotalItems, $getPaginatedList])
     const totalPages = Math.ceil(totalItems / limit)
@@ -50,12 +144,29 @@ export class ProductRepository {
     return { totalItems, data, limit, page, totalPages }
   }
 
-  findById(id: number, languageId: string): Promise<GetProductDetailsResponseType | null> {
+  getDetails({ id, isPublic }: { id: number; isPublic?: boolean }, languageId: string) {
+    let whereCondition: Prisma.ProductWhereUniqueInput = {
+      id,
+      deletedAt: null,
+    }
+    const now = new Date()
+    if (isPublic === true) {
+      // isPublic === true -> Display published product
+      // product.publicAt !== null && product.publicAt <= now
+      whereCondition.publishedAt = {
+        not: null,
+        lte: now,
+      }
+    } else if (isPublic === false) {
+      // isPublic === false -> Display unpublished product
+      // product.publicAt === null || product.publicAt > now
+      whereCondition = {
+        ...whereCondition,
+        OR: [{ publishedAt: null }, { publishedAt: { gt: now } }],
+      }
+    }
     return this.prismaService.product.findUnique({
-      where: {
-        id,
-        deletedAt: null,
-      },
+      where: whereCondition,
       include: {
         productTranslations: {
           where:
@@ -96,6 +207,15 @@ export class ProductRepository {
             },
           },
         },
+      },
+    })
+  }
+
+  findById(id: number): Promise<ProductType | null> {
+    return this.prismaService.product.findUnique({
+      where: {
+        id,
+        deletedAt: null,
       },
     })
   }
@@ -249,11 +369,8 @@ export class ProductRepository {
     isHardDelete?: boolean
   }): Promise<ProductType> {
     if (isHardDelete) {
-      const [, product] = await this.prismaService.$transaction([
-        this.prismaService.sKU.deleteMany({ where: { productId: id } }),
-        this.prismaService.product.delete({ where: { id } }),
-      ])
-      return product
+      // MEMO: Khi xóa product thì các relations như: ProductTranslation, SKU cũng bị xóa theo (do set cascade)
+      return this.prismaService.product.delete({ where: { id } })
     }
 
     const now = new Date()
@@ -271,7 +388,14 @@ export class ProductRepository {
         updatedByUserId,
       },
     })
-    const [product] = await Promise.all([$softDeleteProduct, $softDeleteSKUs])
+    const $softDeleteProductTranslations = this.prismaService.productTranslation.updateMany({
+      where: { productId: id, deletedAt: null },
+      data: {
+        deletedAt: now,
+        updatedByUserId,
+      },
+    })
+    const [product] = await Promise.all([$softDeleteProduct, $softDeleteSKUs, $softDeleteProductTranslations])
     return product
   }
 }

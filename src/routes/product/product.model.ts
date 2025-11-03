@@ -1,6 +1,7 @@
 import { ProductTranslationSchema } from 'src/routes/product-translation/product-translation.model'
 import { generateSKUs } from 'src/routes/product/product.helper'
 import { SKUSchema, UpsertSKURequestBodySchema } from 'src/routes/product/sku.model'
+import { ProductSortField, OrderBy } from 'src/shared/constants/others.constants'
 import { BrandWithTranslationsSchema } from 'src/shared/models/brand.model'
 import { CategoryWithTranslationsSchema } from 'src/shared/models/category.model'
 import {
@@ -62,13 +63,49 @@ export const ProductSchema = z.object({
   updatedAt: z.date(),
 })
 
+// Dành cho client và guest
 export const GetPaginatedProductsListRequestQuerySchema = GetPaginatedItemsListRequestQuerySchema.extend({
   name: z.string().optional(),
-  brandIds: z.array(z.coerce.number().int().positive()).optional(),
-  categories: z.array(z.coerce.number().int().positive()).optional(),
+  brandIds: z
+    .preprocess((value) => {
+      // Ex: ?brandIds=1
+      if (typeof value === 'string') {
+        return [Number(value)]
+      }
+      // Ex: ?brandIds=1&brandIds=2...
+      return value
+    }, z.array(z.coerce.number().int().positive()))
+    .optional(),
+  categories: z
+    .preprocess((value) => {
+      // Ex: ?categories=1
+      if (typeof value === 'string') {
+        return [Number(value)]
+      }
+      // Ex: ?categories=1&categories=2...
+      return value
+    }, z.array(z.coerce.number().int().positive()))
+    .optional(),
   minPrice: z.coerce.number().int().positive().optional(),
   maxPrice: z.coerce.number().int().positive().optional(),
+  createdByUserId: z.coerce.number().int().positive().optional(),
+  orderBy: z.enum([OrderBy.Asc, OrderBy.Desc]).default(OrderBy.Asc),
+  sortedBy: z
+    .enum([ProductSortField.CreatedAt, ProductSortField.Price, ProductSortField.Sale])
+    .default(ProductSortField.CreatedAt),
 }).strict()
+
+// Dành cho admin và seller
+export const ForManagementGetPaginatedProductsListRequestQuerySchema =
+  GetPaginatedProductsListRequestQuerySchema.extend({
+    isPublic: z.preprocess((value) => {
+      if (value === undefined || value === '') return undefined
+      if (value === '1' || value === 'true') return true
+      if (value === '0' || value === 'false') return false
+      return undefined
+    }, z.boolean().optional()),
+    createdByUserId: z.coerce.number().int().positive(), // Required!
+  })
 
 export const GetPaginatedProductsListResponseSchema = BasePaginatedItemsListResponseSchema.extend({
   data: z.array(
@@ -141,6 +178,9 @@ export type VariantType = z.infer<typeof VariantSchema>
 export type VariantsListType = z.infer<typeof VariantsListSchema>
 export type ProductType = z.infer<typeof ProductSchema>
 export type GetPaginatedProductsListRequestQueryType = z.infer<typeof GetPaginatedProductsListRequestQuerySchema>
+export type ForManagementGetPaginatedProductsListRequestQueryType = z.infer<
+  typeof ForManagementGetPaginatedProductsListRequestQuerySchema
+>
 export type GetPaginatedProductsListResponseType = z.infer<typeof GetPaginatedProductsListResponseSchema>
 export type GetProductRequestParamsType = z.infer<typeof GetProductRequestParamsSchema>
 export type GetProductDetailsResponseType = z.infer<typeof GetProductDetailsResponseSchema>

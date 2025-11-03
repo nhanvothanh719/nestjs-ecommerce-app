@@ -331,6 +331,7 @@ model SKU {
 
   // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
   @@index([deletedAt])
+  @@index([productId])
 }
 
 model Brand {
@@ -379,12 +380,15 @@ model CartItem {
   id       Int  @id @default(autoincrement())
   quantity Int
   skuId    Int
-  sku      SKU  @relation(fields: [skuId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sku      SKU  @relation(fields: [skuId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   userId   Int
   user     User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Thêm index cho userId để query tìm cart item của 1 user nhanh hơn
+  @@index([userId])
 }
 
 model ProductSKUSnapshot {

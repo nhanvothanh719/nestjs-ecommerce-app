@@ -6,3 +6,5 @@ export const OrderStatus = {
   RETURNED: 'RETURNED',
   CANCELLED: 'CANCELLED',
 } as const
+
+export type OrderStatusType = (typeof OrderStatus)[keyof typeof OrderStatus]

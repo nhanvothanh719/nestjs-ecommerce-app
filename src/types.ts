@@ -6,10 +6,7 @@ import { VariantsListType } from 'src/shared/models/product.model'
 declare global {
   namespace PrismaJson {
     type CustomVariantsListType = VariantsListType
-    type SKUSnapshotProductTranslations = Pick<
-      ProductTranslationType,
-      'id' | 'productId' | 'name' | 'description' | 'languageId'
-    >[]
+    type SKUSnapshotProductTranslations = Pick<ProductTranslationType, 'id' | 'name' | 'description' | 'languageId'>[]
     type Receiver = {
       name: string
       phoneNumber: string

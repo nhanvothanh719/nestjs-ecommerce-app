@@ -1,18 +1,18 @@
 import { createZodDto } from 'nestjs-zod'
 import {
   AddToCartRequestBodySchema,
-  CartItemDetailsSchema,
   CartItemSchema,
   DeleteCartItemsRequestBodySchema,
   GetCartItemRequestParamsSchema,
   GetPaginatedCartItemsRequestQuerySchema,
   GetPaginatedCartItemsResponseSchema,
+  GroupedCartItemsSchema,
   UpdateCartItemRequestBodySchema,
 } from 'src/routes/cart/cart.model'
 
 export class CartItemDTO extends createZodDto(CartItemSchema) {}
 export class GetCartItemRequestParamsDTO extends createZodDto(GetCartItemRequestParamsSchema) {}
-export class CartItemDetailsDTO extends createZodDto(CartItemDetailsSchema) {}
+export class GroupedCartItemsDTO extends createZodDto(GroupedCartItemsSchema) {}
 export class GetPaginatedCartItemsRequestQueryDTO extends createZodDto(GetPaginatedCartItemsRequestQuerySchema) {}
 export class GetPaginatedCartItemsResponseDTO extends createZodDto(GetPaginatedCartItemsResponseSchema) {}
 export class AddToCartRequestBodyDTO extends createZodDto(AddToCartRequestBodySchema) {}

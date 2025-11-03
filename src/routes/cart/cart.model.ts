@@ -5,6 +5,7 @@ import {
   GetPaginatedItemsListRequestQuerySchema,
 } from 'src/shared/models/request.model'
 import { SKUSchema } from 'src/shared/models/sku.model'
+import { UserSchema } from 'src/shared/models/user.model'
 import * as z from 'zod'
 
 export const CartItemSchema = z.object({
@@ -21,18 +22,27 @@ export const GetCartItemRequestParamsSchema = z
   })
   .strict()
 
-export const CartItemDetailsSchema = CartItemSchema.extend({
-  sku: SKUSchema.extend({
-    product: ProductSchema.extend({
-      productTranslations: z.array(ProductTranslationSchema),
-    }),
+export const GroupedCartItemsSchema = z.object({
+  shop: UserSchema.pick({
+    id: true,
+    name: true,
+    avatar: true,
   }),
+  cartItems: z.array(
+    CartItemSchema.extend({
+      sku: SKUSchema.extend({
+        product: ProductSchema.extend({
+          productTranslations: z.array(ProductTranslationSchema),
+        }),
+      }),
+    }),
+  ),
 })
 
 export const GetPaginatedCartItemsRequestQuerySchema = GetPaginatedItemsListRequestQuerySchema
 
 export const GetPaginatedCartItemsResponseSchema = BasePaginatedItemsListResponseSchema.extend({
-  data: z.array(CartItemDetailsSchema),
+  data: z.array(GroupedCartItemsSchema),
 })
 
 export const AddToCartRequestBodySchema = CartItemSchema.pick({
@@ -50,7 +60,7 @@ export const DeleteCartItemsRequestBodySchema = z
 
 export type CartItemType = z.infer<typeof CartItemSchema>
 export type GetCartItemRequestParamsType = z.infer<typeof GetCartItemRequestParamsSchema>
-export type CartItemDetailsType = z.infer<typeof CartItemDetailsSchema>
+export type GroupedCartItemsType = z.infer<typeof GroupedCartItemsSchema>
 export type GetPaginatedCartItemsRequestQueryType = z.infer<typeof GetPaginatedCartItemsRequestQuerySchema>
 export type GetPaginatedCartItemsResponseType = z.infer<typeof GetPaginatedCartItemsResponseSchema>
 export type AddToCartRequestBodyType = z.infer<typeof AddToCartRequestBodySchema>

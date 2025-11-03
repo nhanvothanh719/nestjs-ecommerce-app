@@ -5,6 +5,7 @@ import {
   CartItemType,
   DeleteCartItemsRequestBodyType,
   GetPaginatedCartItemsResponseType,
+  GroupedCartItemsType,
   UpdateCartItemRequestBodyType,
 } from 'src/routes/cart/cart.model'
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/lang.constant'
@@ -45,9 +46,12 @@ export class CartRepository {
     { userId, page, limit }: { userId: number; page: number; limit: number },
     languageId: string,
   ): Promise<GetPaginatedCartItemsResponseType> {
-    const skip = (page - 1) * limit
-    const $getCartItems = this.prismaService.cartItem.findMany({
-      where: { userId },
+    // Lấy danh sách items trong giỏ hàng
+    const cartItems = await this.prismaService.cartItem.findMany({
+      where: {
+        userId,
+        sku: { product: { deletedAt: null, publishedAt: { not: null, lte: new Date() } } },
+      },
       include: {
         sku: {
           include: {
@@ -56,23 +60,41 @@ export class CartRepository {
                 productTranslations: {
                   where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { deletedAt: null, languageId },
                 },
+                createdBy: true, // User type
               },
             },
           },
         },
       },
-      skip,
-      take: limit,
       orderBy: {
-        createdAt: 'desc',
+        updatedAt: 'desc',
       },
     })
-    const $totalCartItems = this.prismaService.cartItem.count({ where: { userId } })
-    const [data, totalItems] = await Promise.all([$getCartItems, $totalCartItems])
+
+    // Xử lý gom nhóm items trong giỏ hàng
+    const cartItemsGroupMap = new Map<number, GroupedCartItemsType>()
+    for (const item of cartItems) {
+      // Shop là người tạo ra SP
+      const shopId = item.sku.product.createdByUserId
+
+      if (shopId) {
+        if (!cartItemsGroupMap.has(shopId)) {
+          cartItemsGroupMap.set(shopId, { shop: item.sku.product.createdBy, cartItems: [] })
+        }
+        cartItemsGroupMap.get(shopId)?.cartItems.push(item)
+      }
+    }
+
+    const sortedGroups = Array.from(cartItemsGroupMap.values())
+
+    // Xử lý phân trang theo shop
+    const skip = (page - 1) * limit
+    const totalItems = sortedGroups.length
+    const paginatedGroups = sortedGroups.slice(skip, skip + limit)
     const totalPages = Math.ceil(totalItems / limit)
     return {
       totalItems,
-      data,
+      data: paginatedGroups,
       page,
       limit,
       totalPages,

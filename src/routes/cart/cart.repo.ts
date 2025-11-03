@@ -18,7 +18,7 @@ import { PrismaService } from 'src/shared/services/prisma.service'
 export class CartRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  private async checkBuyableSKU(id: number): Promise<SKUType> {
+  private async checkBuyableSKU(id: number, quantity: number): Promise<SKUType> {
     const sku = await this.prismaService.sKU.findUnique({
       where: {
         id,
@@ -30,7 +30,7 @@ export class CartRepository {
     })
 
     if (!sku) throw NotFoundSKUException
-    if (sku.stock < 1) throw OutOfStockSKUException
+    if (sku.stock < 1 || sku.stock < quantity) throw OutOfStockSKUException
 
     const { product } = sku
 
@@ -103,7 +103,7 @@ export class CartRepository {
 
   async createCartItem(userId: number, body: AddToCartRequestBodyType): Promise<CartItemType> {
     const { skuId, quantity } = body
-    await this.checkBuyableSKU(skuId)
+    await this.checkBuyableSKU(skuId, quantity)
 
     return this.prismaService.cartItem.create({
       data: {
@@ -116,7 +116,7 @@ export class CartRepository {
 
   async updateCartItem(id: number, body: UpdateCartItemRequestBodyType): Promise<CartItemType> {
     const { quantity, skuId } = body
-    await this.checkBuyableSKU(skuId)
+    await this.checkBuyableSKU(skuId, quantity)
 
     try {
       return await this.prismaService.cartItem.update({

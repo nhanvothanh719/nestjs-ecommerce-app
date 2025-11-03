@@ -1,4 +1,4 @@
-import { ProductTranslationSchema } from 'src/routes/product-translation/product-translation.model'
+import { ProductTranslationSchema } from 'src/shared/models/product-translation.model'
 import { ProductSchema } from 'src/shared/models/product.model'
 import {
   BasePaginatedItemsListResponseSchema,

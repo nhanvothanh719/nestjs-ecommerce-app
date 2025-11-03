@@ -3,12 +3,12 @@ import { AlreadyExistedProductTranslationException } from 'src/routes/product-tr
 import {
   CreateProductTranslationRequestBodyType,
   GetProductTranslationDetailsResponseType,
-  ProductTranslationType,
   UpdateProductTranslationRequestBodyType,
 } from 'src/routes/product-translation/product-translation.model'
 import { ProductTranslationRepository } from 'src/routes/product-translation/product-translation.repo'
 import { NotFoundRecordException } from 'src/shared/error'
 import { isPrismaNotFoundError, isPrismaUniqueConstraintFailedError } from 'src/shared/helpers'
+import { ProductTranslationType } from 'src/shared/models/product-translation.model'
 import { ResponseMessageType } from 'src/shared/models/response.model'
 
 @Injectable()

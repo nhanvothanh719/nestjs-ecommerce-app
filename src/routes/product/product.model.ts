@@ -1,9 +1,9 @@
-import { ProductTranslationSchema } from 'src/routes/product-translation/product-translation.model'
 import { generateSKUs } from 'src/routes/product/product.helper'
 import { UpsertSKURequestBodySchema } from 'src/routes/product/sku.model'
 import { ProductSortField, OrderBy } from 'src/shared/constants/others.constants'
 import { BrandWithTranslationsSchema } from 'src/shared/models/brand.model'
 import { CategoryWithTranslationsSchema } from 'src/shared/models/category.model'
+import { ProductTranslationSchema } from 'src/shared/models/product-translation.model'
 import { ProductSchema } from 'src/shared/models/product.model'
 import {
   BasePaginatedItemsListResponseSchema,

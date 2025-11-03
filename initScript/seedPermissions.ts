@@ -4,7 +4,8 @@ import { HTTPMethod } from 'src/shared/constants/permission.constant'
 import { RoleName } from 'src/shared/constants/role.constant'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
-const SELLER_MODULES = ['auth', 'media', 'product-management', 'product-translations', 'profile']
+const SELLER_MODULES = ['auth', 'media', 'product-management', 'product-translations', 'profile', 'cart']
+const CLIENT_MODULES = ['auth', 'media', 'profile', 'cart']
 
 const prismaService = new PrismaService()
 
@@ -84,11 +85,15 @@ async function bootstrap() {
   const sellerPermissionIds = currentPermissions
     .filter((item) => SELLER_MODULES.includes(item.module))
     .map((item) => ({ id: item.id }))
+  const clientPermissionIds = currentPermissions
+    .filter((item) => CLIENT_MODULES.includes(item.module))
+    .map((item) => ({ id: item.id }))
 
   const $updateAdminRolePermissions = updateRolePermissions(adminPermissionIds, RoleName.Admin)
   const $updateSellerRolePermissions = updateRolePermissions(sellerPermissionIds, RoleName.Seller)
+  const $updateClientRolePermissions = updateRolePermissions(clientPermissionIds, RoleName.Client)
 
-  await Promise.all([$updateAdminRolePermissions, $updateSellerRolePermissions])
+  await Promise.all([$updateAdminRolePermissions, $updateSellerRolePermissions, $updateClientRolePermissions])
 
   // Shut down NestJS application and HTTP server
   await app.close()

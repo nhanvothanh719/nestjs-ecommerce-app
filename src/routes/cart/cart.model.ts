@@ -32,9 +32,29 @@ export const GroupedCartItemsSchema = z.object({
     CartItemSchema.extend({
       sku: SKUSchema.extend({
         product: ProductSchema.extend({
-          productTranslations: z.array(ProductTranslationSchema),
+          productTranslations: z.array(
+            ProductTranslationSchema.omit({
+              createdAt: true,
+              updatedAt: true,
+              deletedAt: true,
+              updatedByUserId: true,
+            }),
+          ),
+        }).omit({
+          createdAt: true,
+          updatedAt: true,
+          deletedAt: true,
+          updatedByUserId: true,
         }),
+      }).omit({
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+        updatedByUserId: true,
       }),
+    }).omit({
+      createdAt: true,
+      updatedAt: true,
     }),
   ),
 })

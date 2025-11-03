@@ -105,8 +105,22 @@ export class CartRepository {
     const { skuId, quantity } = body
     await this.checkBuyableSKU(skuId, quantity)
 
-    return this.prismaService.cartItem.create({
-      data: {
+    return this.prismaService.cartItem.upsert({
+      where: {
+        // @@unique([userId, skuId])
+        userId_skuId: {
+          userId,
+          skuId,
+        },
+      },
+      // update -> Tăng số lượng quantity trong db
+      update: {
+        quantity: {
+          increment: quantity,
+        },
+      },
+      // create -> Thêm item vào giỏ hàng
+      create: {
         userId,
         skuId,
         quantity,

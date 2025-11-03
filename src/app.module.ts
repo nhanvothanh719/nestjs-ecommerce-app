@@ -20,6 +20,7 @@ import { CategoryModule } from './routes/category/category.module';
 import { CategoryTranslationModule } from './routes/category-translation/category-translation.module';
 import { ProductModule } from './routes/product/product.module';
 import { ProductTranslationModule } from './routes/product-translation/product-translation.module';
+import { CartModule } from './routes/cart/cart.module';
 import path from 'path'
 
 @Module({
@@ -56,6 +57,7 @@ import path from 'path'
     CategoryTranslationModule,
     ProductModule,
     ProductTranslationModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [

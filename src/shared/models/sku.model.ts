@@ -7,7 +7,7 @@ export const SKUSchema = z.object({
   stock: z.number().positive(),
   image: z.string(),
   productId: z.number(),
-  createdByUserId: z.number().nullable(),
+  createdByUserId: z.number(),
   updatedByUserId: z.number().nullable(),
   deletedAt: z.date().nullable(),
   createdAt: z.date(),

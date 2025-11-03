@@ -46,7 +46,7 @@ export const ProductSchema = z.object({
   brandId: z.number().positive(),
   images: z.array(z.string()),
   variants: VariantsListSchema,
-  createdByUserId: z.number().nullable(),
+  createdByUserId: z.number(),
   updatedByUserId: z.number().nullable(),
   deletedAt: z.date().nullable(),
   createdAt: z.date(),

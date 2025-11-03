@@ -58,7 +58,15 @@ export class ProductManagementService {
   create(payload: {
     data: CreateProductRequestBodyType
     createdByUserId: number
+    actorRoleName: string
   }): Promise<GetProductDetailsResponseType> {
+    const { createdByUserId, actorRoleName } = payload
+    this.checkActorPrivilege({
+      actorUserId: createdByUserId,
+      actorRoleName,
+      createdByUserId: createdByUserId,
+    })
+
     return this.productRepository.create(payload)
   }
 

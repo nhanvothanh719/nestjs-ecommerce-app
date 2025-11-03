@@ -33,10 +33,7 @@ export class ProductManagementController {
 
   @Get(':id')
   @ZodResponse({ type: GetProductDetailsResponseDTO })
-  findById(
-    @Param() params: GetProductRequestParamsDTO,
-    @ActiveUser() user: AccessTokenPayload,
-  ) {
+  findById(@Param() params: GetProductRequestParamsDTO, @ActiveUser() user: AccessTokenPayload) {
     return this.productManagementService.findById({
       id: params.id,
       actorRoleName: user.roleName,
@@ -46,8 +43,12 @@ export class ProductManagementController {
 
   @Post()
   @ZodResponse({ type: GetProductDetailsResponseDTO })
-  create(@Body() body: CreateProductRequestBodyDTO, @ActiveUser('userId') userId: number) {
-    return this.productManagementService.create({ data: body, createdByUserId: userId })
+  create(@Body() body: CreateProductRequestBodyDTO, @ActiveUser() user: AccessTokenPayload) {
+    return this.productManagementService.create({
+      data: body,
+      createdByUserId: user.userId,
+      actorRoleName: user.roleName,
+    })
   }
 
   @Put(':id')

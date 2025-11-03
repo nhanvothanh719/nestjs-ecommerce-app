@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { Prisma } from 'generated/prisma'
 import {
   CreateProductRequestBodyType,
-  GetPaginatedProductsListRequestQueryType,
   GetPaginatedProductsListResponseType,
   GetProductDetailsResponseType,
   ProductType,

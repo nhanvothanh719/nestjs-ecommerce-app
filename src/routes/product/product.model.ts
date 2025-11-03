@@ -98,7 +98,14 @@ export const GetPaginatedProductsListRequestQuerySchema = GetPaginatedItemsListR
 // Dành cho admin và seller
 export const ForManagementGetPaginatedProductsListRequestQuerySchema =
   GetPaginatedProductsListRequestQuerySchema.extend({
-    isPublic: z.preprocess((value) => value === 'true' || value === '1', z.boolean()).optional(),
+    isPublic: z
+      .preprocess((value) => {
+        if (value === undefined || value === '') return undefined
+        if (value === '1' || value === 'true') return true
+        if (value === '0' || value === 'false') return false
+        return undefined
+      }, z.boolean().optional())
+      .optional(),
     createdByUserId: z.coerce.number().int().positive(), // Required!
   })
 

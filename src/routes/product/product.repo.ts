@@ -4,12 +4,12 @@ import {
   CreateProductRequestBodyType,
   GetPaginatedProductsListResponseType,
   GetProductDetailsResponseType,
-  ProductType,
   UpdateProductRequestBodyType,
 } from 'src/routes/product/product.model'
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/lang.constant'
 import { OrderStatus } from 'src/shared/constants/order.constant'
 import { OrderByType, ProductSortField, ProductSortFieldType } from 'src/shared/constants/others.constants'
+import { ProductType } from 'src/shared/models/product.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 interface IGetProductsList {

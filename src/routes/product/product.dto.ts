@@ -6,9 +6,9 @@ import {
   GetPaginatedProductsListResponseSchema,
   GetProductDetailsResponseSchema,
   GetProductRequestParamsSchema,
-  ProductSchema,
   UpdateProductRequestBodySchema,
 } from 'src/routes/product/product.model'
+import { ProductSchema } from 'src/shared/models/product.model'
 
 export class ProductDTO extends createZodDto(ProductSchema) {}
 export class GetPaginatedProductsListRequestQueryDTO extends createZodDto(GetPaginatedProductsListRequestQuerySchema) {}

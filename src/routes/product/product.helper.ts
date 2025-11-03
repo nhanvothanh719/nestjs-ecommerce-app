@@ -1,4 +1,4 @@
-import { VariantType } from 'src/routes/product/product.model'
+import { VariantType } from 'src/shared/models/product.model'
 
 export const generateSKUs = (variants: VariantType[]) => {
   const generateCombinations = (values: string[][]): string[] => {

@@ -5,13 +5,13 @@ import {
   ForManagementGetPaginatedProductsListRequestQueryType,
   GetPaginatedProductsListResponseType,
   GetProductDetailsResponseType,
-  ProductType,
   UpdateProductRequestBodyType,
 } from 'src/routes/product/product.model'
 import { ProductRepository } from 'src/routes/product/product.repo'
 import { RoleName } from 'src/shared/constants/role.constant'
 import { NotFoundRecordException } from 'src/shared/error'
 import { isPrismaNotFoundError } from 'src/shared/helpers'
+import { ProductType } from 'src/shared/models/product.model'
 import { ResponseMessageType } from 'src/shared/models/response.model'
 
 @Injectable()

@@ -60,14 +60,14 @@ export class ProductManagementService {
     createdByUserId: number
     actorRoleName: string
   }): Promise<GetProductDetailsResponseType> {
-    const { createdByUserId, actorRoleName } = payload
+    const { createdByUserId, actorRoleName, data } = payload
     this.checkActorPrivilege({
       actorUserId: createdByUserId,
       actorRoleName,
       createdByUserId: createdByUserId,
     })
 
-    return this.productRepository.create(payload)
+    return this.productRepository.create({ data, createdByUserId })
   }
 
   async update(payload: {

@@ -48,7 +48,7 @@ export const ProductSKUSnapshotSchema = z.object({
   skuId: z.number().nullable(),
   skuValue: z.string(),
   orderId: z.number().nullable(),
-  quantity: z.number().positive(),
+  quantity: z.number().int().positive(),
   createdAt: z.date(),
 })
 
@@ -97,6 +97,8 @@ export const CreateOrderResponseSchema = z.object({
   data: z.array(OrderSchema),
 })
 
+export const CancelOrderRequestBodySchema = z.object({})
+
 export const CancelOrderResponseSchema = OrderSchema
 
 export type OrderType = z.infer<typeof OrderSchema>
@@ -106,4 +108,5 @@ export type GetOrderRequestParamsType = z.infer<typeof GetOrderRequestParamsSche
 export type GetOrderDetailsResponseType = z.infer<typeof GetOrderDetailsResponseSchema>
 export type CreateOrderRequestBodyType = z.infer<typeof CreateOrderRequestBodySchema>
 export type CreateOrderResponseType = z.infer<typeof CreateOrderResponseSchema>
+export type CancelOrderRequestBodyType = z.infer<typeof CancelOrderRequestBodySchema>
 export type CancelOrderResponseType = z.infer<typeof CancelOrderResponseSchema>

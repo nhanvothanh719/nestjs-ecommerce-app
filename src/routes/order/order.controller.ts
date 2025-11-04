@@ -1,8 +1,12 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common'
 import { ZodResponse } from 'nestjs-zod'
 import {
+  CancelOrderRequestBodyDTO,
+  CancelOrderResponseDTO,
   CreateOrderRequestBodyDTO,
   CreateOrderResponseDTO,
+  GetOrderDetailsResponseDTO,
+  GetOrderRequestParamsDTO,
   GetPaginatedOrdersListRequestQueryDTO,
   GetPaginatedOrdersListResponseDTO,
 } from 'src/routes/order/order.dto'
@@ -19,9 +23,25 @@ export class OrderController {
     return this.orderService.getPaginatedList(userId, query)
   }
 
+  @Get(':id')
+  @ZodResponse({ type: GetOrderDetailsResponseDTO })
+  getDetails(@Param() params: GetOrderRequestParamsDTO, @ActiveUser('userId') userId: number) {
+    return this.orderService.getDetails(params.id, userId)
+  }
+
   @Post()
   @ZodResponse({ type: CreateOrderResponseDTO })
   create(@Body() body: CreateOrderRequestBodyDTO, @ActiveUser('userId') userId: number) {
     return this.orderService.create(userId, body)
+  }
+
+  @Put(':id/cancel')
+  @ZodResponse({ type: CancelOrderResponseDTO })
+  cancel(
+    @Param() params: GetOrderRequestParamsDTO,
+    @Body() _: CancelOrderRequestBodyDTO,
+    @ActiveUser('userId') userId: number,
+  ) {
+    return this.orderService.cancel(params.id, userId)
   }
 }

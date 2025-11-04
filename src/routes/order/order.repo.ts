@@ -1,18 +1,23 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from 'generated/prisma'
 import {
+  CannotCancelOrderException,
   NotBelongToCorrectShopSKUException,
   NotFoundCartItemException,
   NotFoundProductException,
   OutOfStockSKUException,
 } from 'src/routes/order/order.error'
 import {
+  CancelOrderResponseType,
   CreateOrderRequestBodyType,
   CreateOrderResponseType,
+  GetOrderDetailsResponseType,
   GetPaginatedOrdersListRequestQueryType,
   GetPaginatedOrdersListResponseType,
 } from 'src/routes/order/order.model'
 import { OrderStatus } from 'src/shared/constants/order.constant'
+import { NotFoundRecordException } from 'src/shared/error'
+import { isPrismaNotFoundError } from 'src/shared/helpers'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()
@@ -155,9 +160,9 @@ export class OrderRepository {
               // Tạo liên kết với bảng Product (thông qua việc insert record vào bảng trung gian `_OrderToProduct`)
               products: {
                 connect: item.cartItemIds.map((cartItemId) => {
-                  const cartItem = cartItemMap.get(cartItemId)
+                  const cartItem = cartItemMap.get(cartItemId)!
                   return {
-                    id: cartItem?.sku.product.id,
+                    id: cartItem.sku.product.id,
                   }
                 }),
               },
@@ -178,5 +183,42 @@ export class OrderRepository {
     })
 
     return { data: orders }
+  }
+
+  async getDetails(id: number, userId: number): Promise<GetOrderDetailsResponseType | null> {
+    return this.prismaService.order.findUnique({
+      where: {
+        id,
+        userId,
+        deletedAt: null,
+      },
+      include: {
+        // ProductSKUSnapshot items
+        items: true,
+      },
+    })
+  }
+
+  async cancel(id: number, userId: number): Promise<CancelOrderResponseType> {
+    try {
+      const whereCondition: Prisma.OrderWhereUniqueInput = { id, userId, deletedAt: null }
+
+      const order = await this.prismaService.order.findUniqueOrThrow({ where: whereCondition })
+      // Allow to cancel an order in case its status is `PENDING_PAYMENT`
+      if (order.status !== OrderStatus.PENDING_PAYMENT) throw CannotCancelOrderException
+
+      const updatedOrder = await this.prismaService.order.update({
+        where: whereCondition,
+        data: {
+          status: OrderStatus.CANCELLED,
+          updatedByUserId: userId,
+        },
+      })
+
+      return updatedOrder
+    } catch (error) {
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      throw error
+    }
   }
 }

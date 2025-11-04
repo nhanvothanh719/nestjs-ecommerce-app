@@ -19,7 +19,7 @@ const envConfigSchema = z.object({
   ACCESS_TOKEN_EXPIRES_IN: z.string(),
   REFRESH_TOKEN_SECRET: z.string().min(5),
   REFRESH_TOKEN_EXPIRES_IN: z.string(),
-  SECRET_API_KEY: z.string().min(5),
+  PAYMENT_API_KEY: z.string().min(5),
   ADMIN_USER_NAME: z.string(),
   ADMIN_USER_EMAIL: z.string(),
   ADMIN_USER_PASSWORD: z.string(),

@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core'
 import { AuthType, ConditionGuard } from 'src/shared/constants/auth.constant'
 import { AUTH_TYPE_KEY, AuthTypeDecoratorPayload } from 'src/shared/decorators/auth.decorator'
 import { AccessTokenGuard } from 'src/shared/guards/access-token.guard'
-import { ApiKeyGuard } from 'src/shared/guards/api-key.guard'
+import { PaymentApiKeyGuard } from 'src/shared/guards/payment-api-key.guard'
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
@@ -12,19 +12,17 @@ export class AuthenticationGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly accessTokenGuard: AccessTokenGuard,
-    private readonly apiKeyGuard: ApiKeyGuard,
+    private readonly paymentApiKeyGuard: PaymentApiKeyGuard,
   ) {
     /**
      * Khởi tạo mapping giữa từng loại cơ chế xác thực và guard xử lý tương ứng.
      * Mục đích: Cho phép chọn guard phù hợp dựa trên metadata từ decorator @Auth().
      */
     this.authTypeGuardMap = {
-
-      
       // Xác thực bằng Bearer Token (JWT)
       [AuthType.Bearer]: this.accessTokenGuard,
       // Xác thực bằng API Key
-      [AuthType.ApiKey]: this.apiKeyGuard,
+      [AuthType.PaymentAPIKey]: this.paymentApiKeyGuard,
       // Route public (không yêu cầu xác thực)
       [AuthType.None]: { canActivate: (_context: ExecutionContext) => true },
     }

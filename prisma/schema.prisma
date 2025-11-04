@@ -424,6 +424,9 @@ model Order {
   items    ProductSKUSnapshot[]
   products Product[]
 
+  paymentId Int
+  payment   Payment @relation(fields: [paymentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
   createdByUserId Int?
   createdBy   User? @relation("OrderCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   updatedByUserId Int?
@@ -436,6 +439,15 @@ model Order {
   // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
   @@index([deletedAt])
   @@index([status, deletedAt])
+}
+
+model Payment {
+  id       Int              @id @default(autoincrement())
+  orders   Order[]
+  status   PaymentStatus
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Review {
@@ -455,7 +467,7 @@ model PaymentTransaction {
   id                 Int      @id @default(autoincrement())
   gateway            String   @db.VarChar(100)
   transactionDate    DateTime @default(now())
-  accountNumber      String   @db.VarChar(100)
+  accountNumber      String?  @db.VarChar(100)
   subAccount         String?  @db.VarChar(250)
   amountIn           Int      @default(0)
   amountOut          Int      @default(0)
@@ -510,4 +522,10 @@ enum HTTPMethod {
   PATCH
   OPTIONS
   HEAD
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }

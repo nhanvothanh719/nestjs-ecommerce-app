@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import {
+  CreateOrderRequestBodyType,
+  CreateOrderResponseType,
   GetPaginatedOrdersListRequestQueryType,
   GetPaginatedOrdersListResponseType,
 } from 'src/routes/order/order.model'
@@ -14,5 +16,9 @@ export class OrderService {
     query: GetPaginatedOrdersListRequestQueryType,
   ): Promise<GetPaginatedOrdersListResponseType> {
     return this.orderRepository.getPaginatedList(userId, query)
+  }
+
+  create(userId: number, body: CreateOrderRequestBodyType): Promise<CreateOrderResponseType> {
+    return this.orderRepository.create(userId, body)
   }
 }

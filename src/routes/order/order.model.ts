@@ -43,12 +43,12 @@ export const ProductSKUSnapshotSchema = z.object({
       languageId: z.string(),
     }),
   ),
-  skuPrice: z.number(),
+  skuPrice: z.number().positive(),
   skuImage: z.string(),
   skuId: z.number().nullable(),
   skuValue: z.string(),
   orderId: z.number().nullable(),
-  quantity: z.number(),
+  quantity: z.number().positive(),
   createdAt: z.date(),
 })
 

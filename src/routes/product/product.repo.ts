@@ -324,6 +324,8 @@ export class ProductRepository {
         data: {
           ...productData,
           updatedByUserId,
+          // Ghi đè lại danh mục sản phẩm
+          // MEMO: Sử dụng `set` để ghi đè toàn bộ danh sách liên kết trong quan hệ many-to-many
           categories: {
             set: categories.map((categoryId) => ({ id: categoryId })),
           },

@@ -10,7 +10,11 @@ import {
   NotExistedCategoryOrLanguageException,
 } from 'src/routes/category-translation/category-translation.error'
 import { NotFoundRecordException } from 'src/shared/error'
-import { isPrismaNotFoundError, isPrismaUniqueConstraintFailedError } from 'src/shared/helpers'
+import {
+  isPrismaForeignKeyConstraintError,
+  isPrismaNotFoundError,
+  isPrismaUniqueConstraintFailedError,
+} from 'src/shared/helpers'
 import { ResponseMessageType } from 'src/shared/models/response.model'
 
 @Injectable()
@@ -31,7 +35,7 @@ export class CategoryTranslationService {
       return await this.categoryTranslationRepository.create(payload)
     } catch (error) {
       if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedCategoryTranslationException()
-      if (isPrismaUniqueConstraintFailedError(error)) throw NotExistedCategoryOrLanguageException()
+      if (isPrismaForeignKeyConstraintError(error)) throw NotExistedCategoryOrLanguageException()
       throw error
     }
   }
@@ -46,7 +50,7 @@ export class CategoryTranslationService {
     } catch (error) {
       if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedCategoryTranslationException()
       if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
-      if (isPrismaUniqueConstraintFailedError(error)) throw NotExistedCategoryOrLanguageException()
+      if (isPrismaForeignKeyConstraintError(error)) throw NotExistedCategoryOrLanguageException()
       throw error
     }
   }

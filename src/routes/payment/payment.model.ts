@@ -17,6 +17,20 @@ export const PaymentTransactionSchema = z.object({
 })
 
 // Body của request được gửi đến từ Sepay
-export const WebhookPaymentRequestBodySchema  = z.object({
-  //
+export const WebhookPaymentRequestBodySchema = z.object({
+  id: z.number(), // ID giao dịch trên SePay
+  gateway: z.string(), // Brand name của ngân hàng
+  transactionDate: z.string(), // Thời gian xảy ra giao dịch phía ngân hàng
+  accountNumber: z.string().nullable(), // Số tài khoản ngân hàng
+  code: z.string().nullable(), // Mã code thanh toán
+  content: z.string().nullable(), // Nội dung chuyển khoản
+  transferType: z.enum(['in', 'out']), // Loại giao dịch. in là tiền vào, out là tiền ra
+  transferAmount: z.number(), // Số tiền giao dịch
+  accumulated: z.number(), // Số dư tài khoản (lũy kế)
+  subAccount: z.string().nullable(), // Tài khoản ngân hàng phụ (tài khoản định danh),
+  referenceCode: z.string().nullable(), // Mã tham chiếu của tin nhắn sms
+  description: z.string(), // Toàn bộ nội dung tin nhắn sms
 })
+
+export type PaymentTransactionType = z.infer<typeof PaymentTransactionSchema>
+export type WebhookPaymentRequestBodyType = z.infer<typeof WebhookPaymentRequestBodySchema>

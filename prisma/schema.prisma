@@ -464,14 +464,21 @@ model Review {
 }
 
 model PaymentTransaction {
+  // ID giao dịch trên SePay
   id                 Int      @id @default(autoincrement())
+  // Brand name của ngân hàng
   gateway            String   @db.VarChar(100)
+  // Thời gian diễn ra giao dịch phía ngân hàng
   transactionDate    DateTime @default(now())
+  // Số tài khoản ngân hàng
   accountNumber      String?  @db.VarChar(100)
+  // Tài khoản ngân hàng phụ (tài khoản định danh)
   subAccount         String?  @db.VarChar(250)
   amountIn           Int      @default(0)
   amountOut          Int      @default(0)
+  // Số dư tài khoản (lũy kế)
   accumulated        Int      @default(0)
+  // Mã code thanh toán
   code               String?  @db.VarChar(250)
   transactionContent String?  @db.Text
   referenceNumber    String?  @db.VarChar(255)

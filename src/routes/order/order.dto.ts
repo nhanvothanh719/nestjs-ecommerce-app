@@ -8,8 +8,8 @@ import {
   GetOrderRequestParamsSchema,
   GetPaginatedOrdersListRequestQuerySchema,
   GetPaginatedOrdersListResponseSchema,
-  OrderSchema,
 } from 'src/routes/order/order.model'
+import { OrderSchema } from 'src/shared/models/order.model'
 
 export class OrderDTO extends createZodDto(OrderSchema) {}
 export class GetPaginatedOrdersListRequestQueryDTO extends createZodDto(GetPaginatedOrdersListRequestQuerySchema) {}

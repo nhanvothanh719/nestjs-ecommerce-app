@@ -128,13 +128,13 @@ export class CartRepository {
     })
   }
 
-  async updateCartItem(id: number, body: UpdateCartItemRequestBodyType): Promise<CartItemType> {
+  async updateCartItem(id: number, userId: number, body: UpdateCartItemRequestBodyType): Promise<CartItemType> {
     const { quantity, skuId } = body
     await this.checkBuyableSKU(skuId, quantity)
 
     try {
       return await this.prismaService.cartItem.update({
-        where: { id },
+        where: { id, userId },
         data: {
           skuId,
           quantity,

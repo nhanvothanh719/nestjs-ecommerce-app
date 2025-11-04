@@ -10,6 +10,7 @@ import * as z from 'zod'
 
 export const CartItemSchema = z.object({
   id: z.number(),
+  userId: z.number(),
   skuId: z.number(),
   quantity: z.number().int().positive(),
   createdAt: z.date(),

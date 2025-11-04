@@ -31,8 +31,12 @@ export class CartController {
 
   @Put(':id')
   @ZodResponse({ type: CartItemDTO })
-  updateCartItem(@Param() params: GetCartItemRequestParamsDTO, @Body() body: UpdateCartItemRequestBodyDTO) {
-    return this.cartService.updateCartItem(params.id, body)
+  updateCartItem(
+    @Param() params: GetCartItemRequestParamsDTO,
+    @Body() body: UpdateCartItemRequestBodyDTO,
+    @ActiveUser('userId') userId: number,
+  ) {
+    return this.cartService.updateCartItem(params.id, userId, body)
   }
 
   @Post('delete')

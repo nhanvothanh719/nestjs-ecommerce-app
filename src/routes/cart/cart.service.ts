@@ -23,8 +23,8 @@ export class CartService {
     return this.cartRepository.createCartItem(userId, body)
   }
 
-  updateCartItem(id: number, userId: number, body: UpdateCartItemRequestBodyType): Promise<CartItemType> {
-    return this.cartRepository.updateCartItem(id, userId, body)
+  updateCartItem(payload: { id: number; userId: number; body: UpdateCartItemRequestBodyType }): Promise<CartItemType> {
+    return this.cartRepository.updateCartItem(payload)
   }
 
   async deleteCartItem(userId: number, body: DeleteCartItemsRequestBodyType): Promise<ResponseMessageType> {

@@ -36,7 +36,7 @@ export class CartController {
     @Body() body: UpdateCartItemRequestBodyDTO,
     @ActiveUser('userId') userId: number,
   ) {
-    return this.cartService.updateCartItem(params.id, userId, body)
+    return this.cartService.updateCartItem({ id: params.id, userId, body })
   }
 
   @Post('delete')

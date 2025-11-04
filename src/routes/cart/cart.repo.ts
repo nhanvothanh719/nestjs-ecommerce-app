@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { NotFoundProductException, NotFoundSKUException, OutOfStockSKUException } from 'src/routes/cart/cart.error'
+import {
+  ExceedingAllowedAddedCartItemAmountException,
+  NotFoundCartException,
+  NotFoundProductException,
+  NotFoundSKUException,
+  OutOfStockSKUException,
+} from 'src/routes/cart/cart.error'
 import {
   AddToCartRequestBodyType,
   CartItemType,
@@ -18,22 +24,47 @@ import { PrismaService } from 'src/shared/services/prisma.service'
 export class CartRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  private async checkBuyableSKU(id: number, quantity: number): Promise<SKUType> {
-    const sku = await this.prismaService.sKU.findUnique({
-      where: {
-        id,
-        deletedAt: null,
-      },
-      include: {
-        product: true,
-      },
-    })
+  private async checkBuyableSKU({
+    skuId,
+    quantity,
+    userId,
+    isAddToCartOperation,
+  }: {
+    skuId: number
+    quantity: number
+    userId: number
+    isAddToCartOperation?: boolean
+  }): Promise<SKUType> {
+    const [cartItem, sku] = await Promise.all([
+      this.prismaService.cartItem.findUnique({
+        where: {
+          userId_skuId: {
+            userId,
+            skuId,
+          },
+        },
+      }),
+      this.prismaService.sKU.findUnique({
+        where: {
+          id: skuId,
+          deletedAt: null,
+        },
+        include: {
+          product: true,
+        },
+      }),
+    ])
 
     if (!sku) throw NotFoundSKUException
+    // Kiểm tra số lượng chọn trong cart item không vượt quá số lượng SP còn trong kho
     if (sku.stock < 1 || sku.stock < quantity) throw OutOfStockSKUException
 
-    const { product } = sku
+    if (!cartItem) throw NotFoundCartException
+    // Kiểm tra số lượng thêm vào + số lượng hiện tại trong cart không vượt qua số lượng SP trong kho
+    if (isAddToCartOperation && quantity + cartItem?.quantity > sku.stock)
+      throw ExceedingAllowedAddedCartItemAmountException
 
+    const { product } = sku
     const isDeletedProduct = product.deletedAt !== null
     const isUnpublishedProduct =
       product.publishedAt === null || (product.publishedAt && product.publishedAt > new Date())
@@ -103,7 +134,7 @@ export class CartRepository {
 
   async createCartItem(userId: number, body: AddToCartRequestBodyType): Promise<CartItemType> {
     const { skuId, quantity } = body
-    await this.checkBuyableSKU(skuId, quantity)
+    await this.checkBuyableSKU({ skuId, quantity, userId, isAddToCartOperation: true })
 
     return this.prismaService.cartItem.upsert({
       where: {
@@ -128,9 +159,18 @@ export class CartRepository {
     })
   }
 
-  async updateCartItem(id: number, userId: number, body: UpdateCartItemRequestBodyType): Promise<CartItemType> {
+  async updateCartItem({
+    id,
+    userId,
+    body,
+  }: {
+    id: number
+    userId: number
+    body: UpdateCartItemRequestBodyType
+  }): Promise<CartItemType> {
     const { quantity, skuId } = body
-    await this.checkBuyableSKU(skuId, quantity)
+    // MEMO: Vì là cập nhật quantity (khác với thêm vào số lượng hiện tại trong cart item) nên `isAddToCartOperation` là `false`
+    await this.checkBuyableSKU({ skuId, quantity, userId })
 
     try {
       return await this.prismaService.cartItem.update({

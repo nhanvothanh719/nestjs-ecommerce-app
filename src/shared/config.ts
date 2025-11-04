@@ -35,6 +35,8 @@ const envConfigSchema = z.object({
   AWS_S3_ACCESS_KEY: z.string(),
   AWS_S3_SECRET_ACCESS_KEY: z.string(),
   AWS_S3_BUCKET_NAME: z.string(),
+  REDIS_HOST: z.string(),
+  REDIS_PORT: z.coerce.number(),
 })
 const parsedEnvConfig = envConfigSchema.safeParse(process.env)
 

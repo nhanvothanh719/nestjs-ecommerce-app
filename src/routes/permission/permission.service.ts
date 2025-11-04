@@ -22,7 +22,7 @@ export class PermissionService {
 
   async findById(id: number): Promise<PermissionDetailsType> {
     const permission = await this.permissionRepository.findById(id)
-    if (!permission) throw NotFoundRecordException
+    if (!permission) throw NotFoundRecordException()
     return permission
   }
 
@@ -34,7 +34,7 @@ export class PermissionService {
       const permission = await this.permissionRepository.create(payload)
       return permission
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedPermissionException
+      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedPermissionException()
       throw error
     }
   }
@@ -48,8 +48,8 @@ export class PermissionService {
       const permission = await this.permissionRepository.update(payload)
       return permission
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedPermissionException
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedPermissionException()
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }
@@ -59,7 +59,7 @@ export class PermissionService {
       await this.permissionRepository.delete(payload)
       return { message: 'Delete permission successfully' }
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }

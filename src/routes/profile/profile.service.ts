@@ -17,17 +17,17 @@ export class ProfileService {
 
   async getUserProfile(id: number): Promise<UserWithRoleAndPermissionsType> {
     const user = await this.sharedUserRepository.findUniqueWithRoleAndPermissionsIncluded({ id })
-    if (!user) throw NotFoundRecordException
+    if (!user) throw NotFoundRecordException()
     return user
   }
 
   async updateUserProfile({ id, data }: { id: number; data: UpdateMyProfileRequestBodyType }): Promise<UserType> {
     try {
       const user = await this.sharedUserRepository.update({ id }, { ...data, updatedByUserId: id })
-      if (!user) throw NotFoundRecordException
+      if (!user) throw NotFoundRecordException()
       return user
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) throw NotFoundRecordException
+      if (isPrismaUniqueConstraintFailedError(error)) throw NotFoundRecordException()
       throw error
     }
   }
@@ -42,11 +42,11 @@ export class ProfileService {
     try {
       const { password, newPassword } = data
       const user = await this.sharedUserRepository.findUnique({ id })
-      if (!user) throw NotFoundRecordException
+      if (!user) throw NotFoundRecordException()
 
       // Check password
       const isCorrectPassword = await this.hashingService.compare(password, user.password)
-      if (!isCorrectPassword) throw InvalidPasswordException
+      if (!isCorrectPassword) throw InvalidPasswordException()
       const newHashedPassword = await this.hashingService.hash(newPassword)
 
       // Change password
@@ -54,7 +54,7 @@ export class ProfileService {
 
       return { message: 'Update password successfully' }
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) throw NotFoundRecordException
+      if (isPrismaUniqueConstraintFailedError(error)) throw NotFoundRecordException()
       throw error
     }
   }

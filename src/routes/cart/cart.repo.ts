@@ -55,20 +55,20 @@ export class CartRepository {
       }),
     ])
 
-    if (!sku) throw NotFoundSKUException
+    if (!sku) throw NotFoundSKUException()
     // Kiểm tra số lượng chọn trong cart item không vượt quá số lượng SP còn trong kho
-    if (sku.stock < 1 || sku.stock < quantity) throw OutOfStockSKUException
+    if (sku.stock < 1 || sku.stock < quantity) throw OutOfStockSKUException()
 
-    if (!cartItem) throw NotFoundCartException
+    if (!cartItem) throw NotFoundCartException()
     // Kiểm tra số lượng thêm vào + số lượng hiện tại trong cart không vượt qua số lượng SP trong kho
     if (isAddToCartOperation && quantity + cartItem?.quantity > sku.stock)
-      throw ExceedingAllowedAddedCartItemAmountException
+      throw ExceedingAllowedAddedCartItemAmountException()
 
     const { product } = sku
     const isDeletedProduct = product.deletedAt !== null
     const isUnpublishedProduct =
       product.publishedAt === null || (product.publishedAt && product.publishedAt > new Date())
-    if (isDeletedProduct || isUnpublishedProduct) throw NotFoundProductException
+    if (isDeletedProduct || isUnpublishedProduct) throw NotFoundProductException()
 
     return sku
   }
@@ -181,7 +181,7 @@ export class CartRepository {
         },
       })
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }

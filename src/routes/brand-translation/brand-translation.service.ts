@@ -23,7 +23,7 @@ export class BrandTranslationService {
 
   async findById(id: number): Promise<GetBrandTranslationDetailsResponseType> {
     const brandTranslation = await this.brandTranslationRepository.findById(id)
-    if (!brandTranslation) throw NotFoundRecordException
+    if (!brandTranslation) throw NotFoundRecordException()
     return brandTranslation
   }
 
@@ -34,8 +34,8 @@ export class BrandTranslationService {
     try {
       return await this.brandTranslationRepository.create(payload)
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedBrandTranslationException
-      if (isPrismaForeignKeyConstraintError(error)) throw NotExistedLanguageOrBrandException
+      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedBrandTranslationException()
+      if (isPrismaForeignKeyConstraintError(error)) throw NotExistedLanguageOrBrandException()
       throw error
     }
   }
@@ -48,9 +48,9 @@ export class BrandTranslationService {
     try {
       return await this.brandTranslationRepository.update(payload)
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedBrandTranslationException
-      if (isPrismaForeignKeyConstraintError(error)) throw NotExistedLanguageOrBrandException
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedBrandTranslationException()
+      if (isPrismaForeignKeyConstraintError(error)) throw NotExistedLanguageOrBrandException()
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }
@@ -60,7 +60,7 @@ export class BrandTranslationService {
       await this.brandTranslationRepository.delete(payload)
       return { message: 'Delete brand translation successfully' }
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }

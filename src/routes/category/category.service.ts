@@ -29,7 +29,7 @@ export class CategoryService {
       id,
       languageId,
     })
-    if (!category) throw NotFoundRecordException
+    if (!category) throw NotFoundRecordException()
     return category
   }
 
@@ -48,7 +48,7 @@ export class CategoryService {
     try {
       return await this.categoryRepository.update(payload)
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }
@@ -60,7 +60,7 @@ export class CategoryService {
         message: 'Delete category successfully',
       }
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }

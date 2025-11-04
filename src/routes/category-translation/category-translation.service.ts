@@ -19,7 +19,7 @@ export class CategoryTranslationService {
 
   async findById(id: number): Promise<GetCategoryTranslationDetailsResponseType> {
     const translation = await this.categoryTranslationRepository.findById(id)
-    if (!translation) throw NotFoundRecordException
+    if (!translation) throw NotFoundRecordException()
     return translation
   }
 
@@ -30,8 +30,8 @@ export class CategoryTranslationService {
     try {
       return await this.categoryTranslationRepository.create(payload)
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedCategoryTranslationException
-      if (isPrismaUniqueConstraintFailedError(error)) throw NotExistedCategoryOrLanguageException
+      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedCategoryTranslationException()
+      if (isPrismaUniqueConstraintFailedError(error)) throw NotExistedCategoryOrLanguageException()
       throw error
     }
   }
@@ -44,9 +44,9 @@ export class CategoryTranslationService {
     try {
       return await this.categoryTranslationRepository.update(payload)
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedCategoryTranslationException
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
-      if (isPrismaUniqueConstraintFailedError(error)) throw NotExistedCategoryOrLanguageException
+      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedCategoryTranslationException()
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
+      if (isPrismaUniqueConstraintFailedError(error)) throw NotExistedCategoryOrLanguageException()
       throw error
     }
   }
@@ -56,7 +56,7 @@ export class CategoryTranslationService {
       await this.categoryTranslationRepository.delete(payload)
       return { message: 'Delete category translation successfully' }
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }

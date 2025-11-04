@@ -33,7 +33,7 @@ export class BrandService {
     // console.log('>>> Test: ', this.i18n.t('error.NOT_FOUND', { lang }))
     const languageId = I18nContext.current()?.lang as string
     const brand = await this.brandRepository.findById(id, languageId)
-    if (!brand) throw NotFoundRecordException
+    if (!brand) throw NotFoundRecordException()
     return brand
   }
 
@@ -49,7 +49,7 @@ export class BrandService {
     try {
       return await this.brandRepository.update(payload)
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }
@@ -59,7 +59,7 @@ export class BrandService {
       await this.brandRepository.delete(payload)
       return { message: 'Delete brand successfully' }
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }

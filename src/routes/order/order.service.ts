@@ -27,7 +27,7 @@ export class OrderService {
 
   async getDetails(id: number, userId: number): Promise<GetOrderDetailsResponseType> {
     const order = await this.orderRepository.getDetails(id, userId)
-    if (!order) throw NotFoundRecordException
+    if (!order) throw NotFoundRecordException()
     return order
   }
 

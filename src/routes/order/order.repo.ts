@@ -85,13 +85,13 @@ export class OrderRepository {
     })
 
     // Kiểm tra nếu số lượng cart item trong request body không trùng với số lượng cart item trong database
-    if (cartItems.length !== allCartItemIds.length) throw NotFoundCartItemException
+    if (cartItems.length !== allCartItemIds.length) throw NotFoundCartItemException()
 
     // Kiểm tra nếu có sản phẩm nào out of stock
     const isOutOfStock = cartItems.some((item) => {
       return item.sku.stock < item.quantity
     })
-    if (isOutOfStock) throw OutOfStockSKUException
+    if (isOutOfStock) throw OutOfStockSKUException()
 
     // Check sản phầm chưa bị xóa hay chưa được publish
     const hasUnavailableProduct = cartItems.some((item) => {
@@ -101,7 +101,7 @@ export class OrderRepository {
         (item.sku.product.publishedAt && item.sku.product.publishedAt > new Date())
       )
     })
-    if (hasUnavailableProduct) throw NotFoundProductException
+    if (hasUnavailableProduct) throw NotFoundProductException()
 
     // Tạo map để lưu trữ cart item id và cart item
     const cartItemMap = new Map<number, (typeof cartItems)[0]>()
@@ -118,7 +118,7 @@ export class OrderRepository {
         return item.shopId === cartItem.sku.createdByUserId
       })
     })
-    if (!isCartItemsBelongToCorrectShop) throw NotBelongToCorrectShopSKUException
+    if (!isCartItemsBelongToCorrectShop) throw NotBelongToCorrectShopSKUException()
 
     // Tạo order, tạo snapshot sản phẩm (items), liên kết sản phẩm, rollback nếu có bất kỳ lỗi nào
     // MEMO: `tx` same as `transactionService`, but can only used in callback function
@@ -205,7 +205,7 @@ export class OrderRepository {
 
       const order = await this.prismaService.order.findUniqueOrThrow({ where: whereCondition })
       // Allow to cancel an order in case its status is `PENDING_PAYMENT`
-      if (order.status !== OrderStatus.PENDING_PAYMENT) throw CannotCancelOrderException
+      if (order.status !== OrderStatus.PENDING_PAYMENT) throw CannotCancelOrderException()
 
       const updatedOrder = await this.prismaService.order.update({
         where: whereCondition,
@@ -217,7 +217,7 @@ export class OrderRepository {
 
       return updatedOrder
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }

@@ -17,7 +17,7 @@ export class ProductTranslationService {
 
   async findById(id: number): Promise<GetProductTranslationDetailsResponseType> {
     const translation = await this.productTranslationRepository.findById(id)
-    if (!translation) throw NotFoundRecordException
+    if (!translation) throw NotFoundRecordException()
     return translation
   }
 
@@ -28,7 +28,7 @@ export class ProductTranslationService {
     try {
       return await this.productTranslationRepository.create(payload)
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedProductTranslationException
+      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedProductTranslationException()
       throw error
     }
   }
@@ -41,8 +41,8 @@ export class ProductTranslationService {
     try {
       return await this.productTranslationRepository.update(payload)
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
-      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedProductTranslationException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
+      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedProductTranslationException()
       throw error
     }
   }
@@ -52,7 +52,7 @@ export class ProductTranslationService {
       await this.productTranslationRepository.delete(payload)
       return { message: 'Delete product translation successfully' }
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }

@@ -24,7 +24,7 @@ export class RoleService {
 
   async findById(id: number): Promise<RoleDetailsType> {
     const roleWithPermissions = await this.roleRepository.findById(id)
-    if (!roleWithPermissions) throw NotFoundRecordException
+    if (!roleWithPermissions) throw NotFoundRecordException()
     return roleWithPermissions
   }
 
@@ -33,7 +33,7 @@ export class RoleService {
       const role = await this.roleRepository.create(payload)
       return role
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedRoleException
+      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedRoleException()
       throw error
     }
   }
@@ -49,8 +49,8 @@ export class RoleService {
       const roleWithPermissions = await this.roleRepository.update(payload)
       return roleWithPermissions
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedRoleException
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedRoleException()
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }
@@ -62,19 +62,19 @@ export class RoleService {
       await this.roleRepository.delete(payload)
       return { message: 'Delete role successfully' }
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }
 
   private async verifyRole(id: number) {
     const role = await this.roleRepository.findById(id)
-    if (!role) throw NotFoundRecordException
+    if (!role) throw NotFoundRecordException()
 
     // MEMO: Không cho phép thao tác chỉnh sửa các role cơ bản
     const baseRoles: string[] = [RoleName.Admin, RoleName.Seller, RoleName.Client]
     if (baseRoles.includes(role.name)) {
-      throw ProhibitedActionOnBaseRoleException
+      throw ProhibitedActionOnBaseRoleException()
     }
   }
 }

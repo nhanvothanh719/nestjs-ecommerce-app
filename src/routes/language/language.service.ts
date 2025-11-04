@@ -22,7 +22,7 @@ export class LanguageService {
 
   async findById(id: string): Promise<LanguageDetailsType> {
     const language = await this.languageRepository.findById(id)
-    if (!language) throw NotFoundRecordException
+    if (!language) throw NotFoundRecordException()
     return language
   }
 
@@ -36,7 +36,7 @@ export class LanguageService {
     try {
       return await this.languageRepository.create({ data, createdByUserId })
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedLanguageException
+      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedLanguageException()
       throw error
     }
   }
@@ -54,7 +54,7 @@ export class LanguageService {
       const language = await this.languageRepository.update({ id, updatedByUserId, data })
       return language
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }
@@ -64,7 +64,7 @@ export class LanguageService {
       await this.languageRepository.delete(id, true)
       return { message: 'Delete language successfully' }
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }

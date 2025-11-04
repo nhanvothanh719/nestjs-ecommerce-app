@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common'
 import {
   CreateProductTranslationRequestBodyType,
   GetProductTranslationDetailsResponseType,
-  ProductTranslationType,
   UpdateProductTranslationRequestBodyType,
 } from 'src/routes/product-translation/product-translation.model'
+import { ProductTranslationType } from 'src/shared/models/product-translation.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()

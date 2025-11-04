@@ -10,7 +10,7 @@ export class MediaService {
 
   async uploadImagesToS3(files: Array<Express.Multer.File>): Promise<{ url: string | undefined }[]> {
     if (!files || files.length === 0) {
-      throw RequiredFileException
+      throw RequiredFileException()
     }
 
     // Upload images to AWS S3

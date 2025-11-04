@@ -24,7 +24,7 @@ export class ProductService {
   async getDetails(id: number): Promise<GetProductDetailsResponseType> {
     const languageId = I18nContext.current()?.lang as string
     const product = await this.productRepository.getDetails({ id, isPublic: true }, languageId)
-    if (!product) throw NotFoundRecordException
+    if (!product) throw NotFoundRecordException()
     return product
   }
 }

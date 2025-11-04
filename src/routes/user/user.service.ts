@@ -40,7 +40,7 @@ export class UserService {
 
   async findById(id: number): Promise<UserWithRoleAndPermissionsType> {
     const user = await this.sharedUserRepository.findUniqueWithRoleAndPermissionsIncluded({ id })
-    if (!user) throw NotFoundRecordException
+    if (!user) throw NotFoundRecordException()
     return user
   }
 
@@ -72,8 +72,8 @@ export class UserService {
 
       return user
     } catch (error) {
-      if (isPrismaForeignKeyConstraintError(error)) throw NotFoundRoleException
-      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedUserException
+      if (isPrismaForeignKeyConstraintError(error)) throw NotFoundRoleException()
+      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedUserException()
       throw error
     }
   }
@@ -96,13 +96,13 @@ export class UserService {
       await this.checkCanActionOnUserWithAdminRole({ agentRoleName: updatedByRoleName, targetRoleId })
 
       const user = await this.sharedUserRepository.update({ id }, { ...data, updatedByUserId })
-      if (!user) throw NotFoundRecordException
+      if (!user) throw NotFoundRecordException()
 
       return user
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
-      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedUserException
-      if (isPrismaForeignKeyConstraintError(error)) throw NotFoundRoleException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
+      if (isPrismaUniqueConstraintFailedError(error)) throw AlreadyExistedUserException()
+      if (isPrismaForeignKeyConstraintError(error)) throw NotFoundRoleException()
       throw error
     }
   }
@@ -126,7 +126,7 @@ export class UserService {
 
       return { message: 'Delete user successfully' }
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }
@@ -149,12 +149,12 @@ export class UserService {
   }
 
   private ensureNotSelfAction({ agentUserId, targetUserId }: { agentUserId: number; targetUserId: number }) {
-    if (agentUserId === targetUserId) throw CannotUpdateOrDeleteYourselfException
+    if (agentUserId === targetUserId) throw CannotUpdateOrDeleteYourselfException()
   }
 
   private async getRoleIdByUserId(id: number): Promise<number> {
     const user = await this.sharedUserRepository.findUnique({ id })
-    if (!user) throw NotFoundRecordException
+    if (!user) throw NotFoundRecordException()
     return user.roleId
   }
 }

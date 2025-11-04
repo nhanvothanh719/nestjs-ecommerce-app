@@ -66,7 +66,7 @@ export class GoogleAuthService {
         version: 'v2',
       })
       const { data } = await oauth2.userinfo.get()
-      if (!data.email) throw FailedToGetUserInfoGoogleError
+      if (!data.email) throw FailedToGetUserInfoGoogleError()
 
       // Get user info from Google --> Create new user in case user is not found in the system
       let user = await this.authRepository.findUniqueUserWithRoleIncluded({ email: data.email })
@@ -103,7 +103,7 @@ export class GoogleAuthService {
       return systemAuthTokens
     } catch (error) {
       console.error('Error in handling Google callback: ', error)
-      throw FailedToLoginGoogleError
+      throw FailedToLoginGoogleError()
     }
   }
 }

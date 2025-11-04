@@ -76,9 +76,7 @@ export class AuthService {
       const [user] = await Promise.all([$createUser, $deleteVerificationCode])
       return user
     } catch (error) {
-      if (isPrismaUniqueConstraintFailedError(error)) {
-        throw ExistedEmailException
-      }
+      if (isPrismaUniqueConstraintFailedError(error)) throw ExistedEmailException()
       throw error
     }
   }
@@ -88,14 +86,14 @@ export class AuthService {
 
     // Check user; email + password
     const user = await this.authRepository.findUniqueUserWithRoleIncluded({ email })
-    if (!user) throw NotFoundEmailException
+    if (!user) throw NotFoundEmailException()
 
     const isCorrectPassword = await this.hashingService.compare(password, user.password)
-    if (!isCorrectPassword) throw InvalidPasswordException
+    if (!isCorrectPassword) throw InvalidPasswordException()
 
     // Check OTP token (TOTP token || verification code) in case user has already used 2FA
     if (user.totpSecret) {
-      if (!body.totpCode && !body.loginVerificationCode) throw InvalidTOTPAndLoginVerificationCodeException
+      if (!body.totpCode && !body.loginVerificationCode) throw InvalidTOTPAndLoginVerificationCodeException()
 
       if (body.totpCode) {
         const isValid = this.twoFactorAuthenticationService.verifyTOTP({
@@ -103,7 +101,7 @@ export class AuthService {
           secret: user.totpSecret,
           otpToken: body.totpCode,
         })
-        if (!isValid) throw InvalidTOTPException
+        if (!isValid) throw InvalidTOTPException()
       } else if (body.loginVerificationCode) {
         await this.verifyVerificationCode({
           email,
@@ -152,7 +150,7 @@ export class AuthService {
       return { message: 'Logout successfully' }
     } catch (error) {
       if (isPrismaNotFoundError(error)) throw new UnauthorizedException('Invalid refresh token')
-      throw UnauthorizedAccessException
+      throw UnauthorizedAccessException()
     }
   }
 
@@ -183,7 +181,7 @@ export class AuthService {
         token: refreshToken,
       })
 
-      if (!retrievedRefreshToken) throw InvalidRefreshTokenException
+      if (!retrievedRefreshToken) throw InvalidRefreshTokenException()
 
       const {
         deviceId,
@@ -218,7 +216,7 @@ export class AuthService {
       return generateAccessTokenAndRefreshTokenResult
     } catch (error) {
       if (error instanceof HttpException) throw error
-      throw UnauthorizedAccessException
+      throw UnauthorizedAccessException()
     }
   }
 
@@ -226,8 +224,8 @@ export class AuthService {
     const { email, type } = body
     const user = await this.sharedUserRepository.findUnique({ email })
 
-    if (type === VerificationCodeGenre.REGISTER && user) throw ExistedEmailException
-    if (type === VerificationCodeGenre.FORGOT_PASSWORD && !user) throw NotFoundEmailException
+    if (type === VerificationCodeGenre.REGISTER && user) throw ExistedEmailException()
+    if (type === VerificationCodeGenre.FORGOT_PASSWORD && !user) throw NotFoundEmailException()
 
     const code = generateOTP()
     await this.authRepository.createVerificationCode({
@@ -244,7 +242,7 @@ export class AuthService {
     })
     if (error) {
       console.log(error)
-      throw FailedToSendVerificationCodeException
+      throw FailedToSendVerificationCodeException()
     }
 
     return { message: 'Send verification code successfully' }
@@ -254,7 +252,7 @@ export class AuthService {
     const { email, code, newPassword } = body
     // Check email
     const user = await this.sharedUserRepository.findUnique({ email })
-    if (!user) throw NotFoundEmailException
+    if (!user) throw NotFoundEmailException()
 
     // Check verification code
     await this.verifyVerificationCode({
@@ -285,10 +283,10 @@ export class AuthService {
   async setup2FA(userId: number) {
     // Check user
     const user = await this.sharedUserRepository.findUnique({ id: userId })
-    if (!user) throw NotFoundEmailException
+    if (!user) throw NotFoundEmailException()
 
     // Throw error if user has already enabled 2FA
-    if (user.totpSecret) throw AlreadyEnabled2FAException
+    if (user.totpSecret) throw AlreadyEnabled2FAException()
 
     // Create secret + uri
     const { secret, uri } = this.twoFactorAuthenticationService.generateTOTPSecret(user.email)
@@ -303,12 +301,12 @@ export class AuthService {
     const { userId, disabled2FAVerificationCode, totpCode } = data
 
     const user = await this.sharedUserRepository.findUnique({ id: userId })
-    if (!user) throw NotFoundEmailException
-    if (!user.totpSecret) throw NotEnabled2FAException
+    if (!user) throw NotFoundEmailException()
+    if (!user.totpSecret) throw NotEnabled2FAException()
 
     // Require at least one verification method
     if (!totpCode && !disabled2FAVerificationCode) {
-      throw MissingVerificationMethodException
+      throw MissingVerificationMethodException()
     }
 
     // Check TOTP Code
@@ -318,7 +316,7 @@ export class AuthService {
         secret: user.totpSecret,
         otpToken: totpCode,
       })
-      if (!isValid) throw InvalidTOTPException
+      if (!isValid) throw InvalidTOTPException()
     } else if (disabled2FAVerificationCode) {
       await this.verifyVerificationCode({
         email: user.email,
@@ -352,9 +350,9 @@ export class AuthService {
       email_code_type: { email, code, type },
     })
 
-    if (!verificationCode) throw InvalidVerificationCodeException
+    if (!verificationCode) throw InvalidVerificationCodeException()
 
-    if (verificationCode.expiresAt < new Date()) throw ExpiredVerificationCodeException
+    if (verificationCode.expiresAt < new Date()) throw ExpiredVerificationCodeException()
 
     return verificationCode
   }

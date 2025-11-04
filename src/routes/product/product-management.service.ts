@@ -5,13 +5,13 @@ import {
   ForManagementGetPaginatedProductsListRequestQueryType,
   GetPaginatedProductsListResponseType,
   GetProductDetailsResponseType,
-  ProductType,
   UpdateProductRequestBodyType,
 } from 'src/routes/product/product.model'
 import { ProductRepository } from 'src/routes/product/product.repo'
 import { RoleName } from 'src/shared/constants/role.constant'
 import { NotFoundRecordException } from 'src/shared/error'
 import { isPrismaNotFoundError } from 'src/shared/helpers'
+import { ProductType } from 'src/shared/models/product.model'
 import { ResponseMessageType } from 'src/shared/models/response.model'
 
 @Injectable()
@@ -44,7 +44,7 @@ export class ProductManagementService {
     const languageId = I18nContext.current()?.lang as string
 
     const product = await this.productRepository.getDetails({ id }, languageId)
-    if (!product) throw NotFoundRecordException
+    if (!product) throw NotFoundRecordException()
 
     this.checkActorPrivilege({
       actorUserId,
@@ -79,7 +79,7 @@ export class ProductManagementService {
     const { id, updatedByUserId, actorRoleName } = payload
 
     const product = await this.productRepository.findById(id)
-    if (!product) throw NotFoundRecordException
+    if (!product) throw NotFoundRecordException()
 
     this.checkActorPrivilege({
       actorUserId: updatedByUserId,
@@ -90,7 +90,7 @@ export class ProductManagementService {
     try {
       return await this.productRepository.update(payload)
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }
@@ -100,7 +100,7 @@ export class ProductManagementService {
       const { id, updatedByUserId, actorRoleName } = payload
 
       const product = await this.productRepository.findById(id)
-      if (!product) throw NotFoundRecordException
+      if (!product) throw NotFoundRecordException()
 
       this.checkActorPrivilege({
         actorUserId: updatedByUserId,
@@ -111,7 +111,7 @@ export class ProductManagementService {
       await this.productRepository.delete(payload)
       return { message: 'Delete product successfully' }
     } catch (error) {
-      if (isPrismaNotFoundError(error)) throw NotFoundRecordException
+      if (isPrismaNotFoundError(error)) throw NotFoundRecordException()
       throw error
     }
   }

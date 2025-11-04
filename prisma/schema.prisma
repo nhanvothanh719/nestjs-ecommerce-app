@@ -90,6 +90,7 @@ model User {
   userTranslations            UserTranslation[]     @relation("User")
   sentMessages                Message[]             @relation("FromUser")
   receivedMessages            Message[]             @relation("ToUser")
+  shopOrders                  Order[]               @relation("Shop")
 
   // MEMO: Self relations
   createdByUserId  Int?
@@ -227,9 +228,10 @@ model Product {
   reviews             Review[]
   productTranslations ProductTranslation[]
   orders              Order[]
+  skuSnapshots        ProductSKUSnapshot[]
 
-  createdByUserId Int?
-  createdBy   User? @relation("ProductCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdByUserId Int
+  createdBy   User @relation("ProductCreatedBy", fields: [createdByUserId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   updatedByUserId Int?
   updatedBy   User? @relation("ProductUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
@@ -320,8 +322,8 @@ model SKU {
   cartItems           CartItem[]
   productSKUSnapshots ProductSKUSnapshot[]
 
-  createdByUserId Int?
-  createdBy   User? @relation("SKUCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdByUserId Int
+  createdBy   User @relation("SKUCreatedBy", fields: [createdByUserId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   updatedByUserId Int?
   updatedBy   User? @relation("SKUUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
@@ -331,6 +333,7 @@ model SKU {
 
   // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
   @@index([deletedAt])
+  @@index([productId])
 }
 
 model Brand {
@@ -379,25 +382,33 @@ model CartItem {
   id       Int  @id @default(autoincrement())
   quantity Int
   skuId    Int
-  sku      SKU  @relation(fields: [skuId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sku      SKU  @relation(fields: [skuId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   userId   Int
   user     User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Thêm index cho userId để query tìm cart item của 1 user nhanh hơn
+  @@index([userId])
+  @@unique([userId, skuId])
 }
 
 model ProductSKUSnapshot {
   id          Int      @id @default(autoincrement())
   productName String   @db.VarChar(500)
-  price       Float
-  images      String[]
+  skuPrice    Float
+  skuImage    String
   skuValue    String   @db.VarChar(500)
   skuId       Int?
   sku         SKU?     @relation(fields: [skuId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  quantity    Int
   orderId     Int?
   order       Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-
+  productId   Int?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  /// [SKUSnapshotProductTranslations]
+  productTranslations   Json
   createdAt DateTime @default(now())
 }
 
@@ -406,6 +417,10 @@ model Order {
   userId   Int
   user     User                 @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   status   OrderStatus
+  /// [Receiver]
+  receiver Json
+  shopId   Int?
+  shop     User?                  @relation("Shop", fields: [shopId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   items    ProductSKUSnapshot[]
   products Product[]
 
@@ -466,7 +481,7 @@ model Message {
 }
 
 enum OrderStatus {
-  PENDING_CONFIRMATION
+  PENDING_PAYMENT
   PENDING_PICKUP
   PENDING_DELIVERY
   DELIVERED

@@ -123,7 +123,7 @@ export class OrderRepository {
 
     // Tạo order, tạo snapshot sản phẩm (items), liên kết sản phẩm, rollback nếu có bất kỳ lỗi nào
     // MEMO: `tx` same as `transactionService`, but can only used in callback function
-    const orders = await this.prismaService.$transaction(async (tx) => {
+    const [paymentId, orders] = await this.prismaService.$transaction(async (tx) => {
       const payment = await tx.payment.create({
         data: {
           status: PaymentStatus.PENDING,
@@ -206,10 +206,10 @@ export class OrderRepository {
       )
 
       const [createdOrders] = await Promise.all([$createOrders, $deleteCartItems, $updateQuantitySKU])
-      return createdOrders
+      return [payment.id, createdOrders]
     })
 
-    return { data: orders }
+    return { paymentId, orders }
   }
 
   async getDetails(id: number, userId: number): Promise<GetOrderDetailsResponseType | null> {

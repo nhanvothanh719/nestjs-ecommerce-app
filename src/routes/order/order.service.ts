@@ -7,12 +7,16 @@ import {
   GetPaginatedOrdersListRequestQueryType,
   GetPaginatedOrdersListResponseType,
 } from 'src/routes/order/order.model'
+import { OrderProducer } from 'src/routes/order/order.producer'
 import { OrderRepository } from 'src/routes/order/order.repo'
 import { NotFoundRecordException } from 'src/shared/error'
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly orderRepository: OrderRepository) {}
+  constructor(
+    private readonly orderRepository: OrderRepository,
+    private orderProducer: OrderProducer,
+  ) {}
 
   getPaginatedList(
     userId: number,
@@ -21,8 +25,11 @@ export class OrderService {
     return this.orderRepository.getPaginatedList(userId, query)
   }
 
-  create(userId: number, body: CreateOrderRequestBodyType): Promise<CreateOrderResponseType> {
-    return this.orderRepository.create(userId, body)
+  async create(userId: number, body: CreateOrderRequestBodyType): Promise<CreateOrderResponseType> {
+    const result = await this.orderRepository.create(userId, body)
+
+    await this.orderProducer.addCancelPaymentJob(result.paymentId)
+    return result
   }
 
   async getDetails(id: number, userId: number): Promise<GetOrderDetailsResponseType> {

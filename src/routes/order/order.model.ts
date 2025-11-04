@@ -47,7 +47,8 @@ export const CreateOrderRequestBodySchema = z
   .min(1)
 
 export const CreateOrderResponseSchema = z.object({
-  data: z.array(OrderSchema),
+  paymentId: z.number(),
+  orders: z.array(OrderSchema),
 })
 
 export const CancelOrderRequestBodySchema = z.object({})

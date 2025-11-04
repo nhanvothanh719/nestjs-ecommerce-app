@@ -26,6 +26,7 @@ import { PaymentModule } from './routes/payment/payment.module'
 import { BullModule } from '@nestjs/bullmq'
 import path from 'path'
 import envConfig from 'src/shared/config'
+import { PaymentConsumer } from 'src/queues/payment.consumer'
 
 @Module({
   imports: [
@@ -86,6 +87,7 @@ import envConfig from 'src/shared/config'
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
     },
+    PaymentConsumer,
   ],
 })
 export class AppModule {}

@@ -59,9 +59,8 @@ export class CartRepository {
     // Kiểm tra số lượng chọn trong cart item không vượt quá số lượng SP còn trong kho
     if (sku.stock < 1 || sku.stock < quantity) throw OutOfStockSKUException()
 
-    if (!cartItem) throw NotFoundCartException()
-    // Kiểm tra số lượng thêm vào + số lượng hiện tại trong cart không vượt qua số lượng SP trong kho
-    if (isAddToCartOperation && quantity + cartItem?.quantity > sku.stock)
+    // Kiểm tra số lượng thêm vào + số lượng hiện tại trong cart không vượt qua số lượng SP trong kho (không check ở trường hợp cart rỗng)
+    if (isAddToCartOperation && cartItem && quantity + cartItem.quantity > sku.stock)
       throw ExceedingAllowedAddedCartItemAmountException()
 
     const { product } = sku

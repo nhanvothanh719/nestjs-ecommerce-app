@@ -19,7 +19,7 @@ const envConfigSchema = z.object({
   ACCESS_TOKEN_EXPIRES_IN: z.string(),
   REFRESH_TOKEN_SECRET: z.string().min(5),
   REFRESH_TOKEN_EXPIRES_IN: z.string(),
-  SECRET_API_KEY: z.string().min(5),
+  PAYMENT_API_KEY: z.string().min(5),
   ADMIN_USER_NAME: z.string(),
   ADMIN_USER_EMAIL: z.string(),
   ADMIN_USER_PASSWORD: z.string(),
@@ -35,6 +35,8 @@ const envConfigSchema = z.object({
   AWS_S3_ACCESS_KEY: z.string(),
   AWS_S3_SECRET_ACCESS_KEY: z.string(),
   AWS_S3_BUCKET_NAME: z.string(),
+  REDIS_HOST: z.string(),
+  REDIS_PORT: z.coerce.number(),
 })
 const parsedEnvConfig = envConfigSchema.safeParse(process.env)
 

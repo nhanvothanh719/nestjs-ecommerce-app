@@ -12,7 +12,7 @@ export const TWO_FACTOR_AUTHENTICATION = {
 
 export const AuthType = {
   Bearer: 'Bearer',
-  ApiKey: 'ApiKey',
+  PaymentAPIKey: 'PaymentAPIKey',
   None: 'None',
 } as const
 export type AuthTypeType = (typeof AuthType)[keyof typeof AuthType]

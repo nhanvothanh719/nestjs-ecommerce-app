@@ -16,16 +16,26 @@ import { MediaModule } from './routes/media/media.module'
 import { BrandModule } from './routes/brand/brand.module'
 import { BrandTranslationModule } from './routes/brand-translation/brand-translation.module'
 import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n'
-import { CategoryModule } from './routes/category/category.module';
-import { CategoryTranslationModule } from './routes/category-translation/category-translation.module';
-import { ProductModule } from './routes/product/product.module';
-import { ProductTranslationModule } from './routes/product-translation/product-translation.module';
-import { CartModule } from './routes/cart/cart.module';
-import { OrderModule } from './routes/order/order.module';
+import { CategoryModule } from './routes/category/category.module'
+import { CategoryTranslationModule } from './routes/category-translation/category-translation.module'
+import { ProductModule } from './routes/product/product.module'
+import { ProductTranslationModule } from './routes/product-translation/product-translation.module'
+import { CartModule } from './routes/cart/cart.module'
+import { OrderModule } from './routes/order/order.module'
+import { PaymentModule } from './routes/payment/payment.module'
+import { BullModule } from '@nestjs/bullmq'
 import path from 'path'
+import envConfig from 'src/shared/config'
+import { PaymentConsumer } from 'src/queues/payment.consumer'
 
 @Module({
   imports: [
+    BullModule.forRoot({
+      connection: {
+        host: envConfig.REDIS_HOST,
+        port: envConfig.REDIS_PORT,
+      },
+    }),
     I18nModule.forRoot({
       fallbackLanguage: 'en', // Ngôn ngữ mặc định (sử dụng khi không tìm thấy ngôn ngữ phù hợp từ request)
       // Cấu hình nơi load các file ngôn ngữ
@@ -60,6 +70,7 @@ import path from 'path'
     ProductTranslationModule,
     CartModule,
     OrderModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [
@@ -76,6 +87,7 @@ import path from 'path'
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
     },
+    PaymentConsumer,
   ],
 })
 export class AppModule {}

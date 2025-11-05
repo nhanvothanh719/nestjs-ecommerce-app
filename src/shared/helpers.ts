@@ -27,3 +27,7 @@ export const generateFileName = (filename: string): string => {
   const uuid = uuidv4()
   return `${uuid}${fileExtension}`
 }
+
+export const generateCancelPaymentJobId = (paymentId: number) => {
+  return `cancel-payment-job-${paymentId}`
+}

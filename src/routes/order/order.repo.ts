@@ -15,14 +15,19 @@ import {
   GetPaginatedOrdersListRequestQueryType,
   GetPaginatedOrdersListResponseType,
 } from 'src/routes/order/order.model'
+import { OrderProducer } from 'src/routes/order/order.producer'
 import { OrderStatus } from 'src/shared/constants/order.constant'
+import { PaymentStatus } from 'src/shared/constants/payment.constant'
 import { NotFoundRecordException } from 'src/shared/error'
 import { isPrismaNotFoundError } from 'src/shared/helpers'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()
 export class OrderRepository {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly orderProducer: OrderProducer,
+  ) {}
 
   async getPaginatedList(
     userId: number,
@@ -122,8 +127,15 @@ export class OrderRepository {
 
     // Tạo order, tạo snapshot sản phẩm (items), liên kết sản phẩm, rollback nếu có bất kỳ lỗi nào
     // MEMO: `tx` same as `transactionService`, but can only used in callback function
-    const orders = await this.prismaService.$transaction(async (tx) => {
-      const orders = await Promise.all(
+    const [paymentId, orders] = await this.prismaService.$transaction(async (tx) => {
+      const payment = await tx.payment.create({
+        data: {
+          status: PaymentStatus.PENDING,
+        },
+      })
+
+      // Tạo orders
+      const $createOrders = Promise.all(
         // Lưu ý: Sử dụng vòng lặp + create thay vì createMany vì createMany không cho phép tạo item của các table liên quan
         body.map((item) =>
           // Mỗi shop tạo 1 order, order chứa các item (snapshot sản phẩm)
@@ -134,6 +146,7 @@ export class OrderRepository {
               receiver: item.receiver,
               createdByUserId: userId,
               shopId: item.shopId,
+              paymentId: payment.id,
               items: {
                 // Tạo snapshot sản phẩm cho mỗi cart item (tạo record vào bảng `ProductSKUSnapshot`)
                 create: item.cartItemIds.map((cartItemId) => {
@@ -171,18 +184,44 @@ export class OrderRepository {
         ),
       )
 
-      // Xóa cart item sau khi tạo order thành công
-      await tx.cartItem.deleteMany({
+      // Xóa item trong giỏ hàng sau khi tạo order thành công
+      const $deleteCartItems = tx.cartItem.deleteMany({
         where: {
           id: {
             in: allCartItemIds,
           },
         },
       })
-      return orders
+
+      // Giảm số lượng SKU đang còn trong kho
+      const $updateQuantitySKU = Promise.all(
+        cartItems.map((item) => {
+          return tx.sKU.update({
+            where: {
+              id: item.sku.id,
+            },
+            data: {
+              stock: {
+                decrement: item.quantity,
+              },
+            },
+          })
+        }),
+      )
+
+      // Add job
+      const $addCancelPaymentJob = this.orderProducer.addCancelPaymentJob(payment.id)
+
+      const [createdOrders] = await Promise.all([
+        $createOrders,
+        $deleteCartItems,
+        $updateQuantitySKU,
+        $addCancelPaymentJob,
+      ])
+      return [payment.id, createdOrders]
     })
 
-    return { data: orders }
+    return { paymentId, orders }
   }
 
   async getDetails(id: number, userId: number): Promise<GetOrderDetailsResponseType | null> {

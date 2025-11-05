@@ -424,6 +424,9 @@ model Order {
   items    ProductSKUSnapshot[]
   products Product[]
 
+  paymentId Int
+  payment   Payment @relation(fields: [paymentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
   createdByUserId Int?
   createdBy   User? @relation("OrderCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   updatedByUserId Int?
@@ -436,6 +439,15 @@ model Order {
   // MEMO: Thêm index `deletedAt` để tìm kiếm danh sách items chưa bị xóa nhanh hơn!
   @@index([deletedAt])
   @@index([status, deletedAt])
+}
+
+model Payment {
+  id       Int              @id @default(autoincrement())
+  orders   Order[]
+  status   PaymentStatus
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Review {
@@ -452,14 +464,21 @@ model Review {
 }
 
 model PaymentTransaction {
+  // ID giao dịch trên SePay
   id                 Int      @id @default(autoincrement())
+  // Brand name của ngân hàng
   gateway            String   @db.VarChar(100)
+  // Thời gian diễn ra giao dịch phía ngân hàng
   transactionDate    DateTime @default(now())
-  accountNumber      String   @db.VarChar(100)
+  // Số tài khoản ngân hàng
+  accountNumber      String?  @db.VarChar(100)
+  // Tài khoản ngân hàng phụ (tài khoản định danh)
   subAccount         String?  @db.VarChar(250)
   amountIn           Int      @default(0)
   amountOut          Int      @default(0)
+  // Số dư tài khoản (lũy kế)
   accumulated        Int      @default(0)
+  // Mã code thanh toán
   code               String?  @db.VarChar(250)
   transactionContent String?  @db.Text
   referenceNumber    String?  @db.VarChar(255)
@@ -510,4 +529,10 @@ enum HTTPMethod {
   PATCH
   OPTIONS
   HEAD
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }

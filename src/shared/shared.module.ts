@@ -6,6 +6,7 @@ import { AuthenticationGuard } from 'src/shared/guards/authentication.guard'
 import { PaymentApiKeyGuard } from 'src/shared/guards/payment-api-key.guard'
 import { SharedPaymentRepository } from 'src/shared/repositories/payment.repo'
 import { SharedRoleRepository } from 'src/shared/repositories/role.repo'
+import { SharedUserSocketRepository } from 'src/shared/repositories/user-socket.repo'
 import { SharedUserRepository } from 'src/shared/repositories/user.repo'
 import { AwsS3Service } from 'src/shared/services/aws_s3.service'
 import { EmailService } from 'src/shared/services/email.service'
@@ -24,6 +25,7 @@ const SHARED_SERVICES = [
   SharedRoleRepository,
   AwsS3Service,
   SharedPaymentRepository,
+  SharedUserSocketRepository,
 ]
 
 @Global()

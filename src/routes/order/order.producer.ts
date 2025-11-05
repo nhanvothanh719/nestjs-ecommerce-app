@@ -1,6 +1,6 @@
 import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable } from '@nestjs/common'
-import { delay, JobsOptions, Queue } from 'bullmq'
+import { JobsOptions, Queue } from 'bullmq'
 import { CANCEL_PAYMENT_JOB, PAYMENT_QUEUE } from 'src/shared/constants/queue.constant'
 import { generateCancelPaymentJobId } from 'src/shared/helpers'
 
@@ -8,7 +8,7 @@ import { generateCancelPaymentJobId } from 'src/shared/helpers'
 export class OrderProducer {
   constructor(@InjectQueue(PAYMENT_QUEUE) private paymentQueue: Queue) {
     // Enable this to view added job:
-    // this.paymentQueue.getJobs().then((jobs) => console.log(jobs))
+    // this.paymentQueue.getJobs().then((jobs) => console.log('>>> All jobs: ', jobs))
   }
 
   async addCancelPaymentJob(paymentId: number) {

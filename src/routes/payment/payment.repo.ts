@@ -5,7 +5,6 @@ import { PaymentProducer } from 'src/routes/payment/payment.producer'
 import { OrderStatus } from 'src/shared/constants/order.constant'
 import { PAYMENT_CODE_PREFIX, PaymentStatus } from 'src/shared/constants/payment.constant'
 import { OrderWithProductSKUSnapshotsType } from 'src/shared/models/order.model'
-import { ResponseMessageType } from 'src/shared/models/response.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()
@@ -15,7 +14,7 @@ export class PaymentRepository {
     private readonly paymentProducer: PaymentProducer,
   ) {}
 
-  async receiver(body: WebhookPaymentRequestBodyType): Promise<ResponseMessageType> {
+  async receiver(body: WebhookPaymentRequestBodyType): Promise<{ userId: number }> {
     const {
       id,
       transferType,
@@ -47,7 +46,7 @@ export class PaymentRepository {
     })
     if (paymentTransaction) throw new BadRequestException('Transaction already exists')
 
-    await this.prismaService.$transaction(async (tx) => {
+    const userId = await this.prismaService.$transaction(async (tx) => {
       // Lưu vào database
       await tx.paymentTransaction.create({
         data: {
@@ -121,9 +120,11 @@ export class PaymentRepository {
         // Remove added job for this payment
         this.paymentProducer.removeCancelPaymentJob(paymentId),
       ])
+
+      return orders[0].userId
     })
 
-    return { message: 'Successful payment' }
+    return { userId }
   }
 
   private getOrdersTotalPrice(orders: OrderWithProductSKUSnapshotsType[]): number {

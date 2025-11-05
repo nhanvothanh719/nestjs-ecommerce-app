@@ -45,16 +45,16 @@ export class CustomWebsocketAdapter extends IoAdapter {
 
     // Apply `authMiddleware` for default namespace (`/`)
     server.use((socket, next) => {
-      this.authMiddleware(socket, next)
-        .then(() => {})
-        .catch(() => {})
+      this.authMiddleware(socket, next).catch((error) =>
+        console.error(`Auth middleware error for socket ${socket.id}:`, error),
+      )
     })
 
     // Apply `authMiddleware` for other namespaces
     server.of(/.*/).use((socket, next) => {
-      this.authMiddleware(socket, next)
-        .then(() => {})
-        .catch(() => {})
+      this.authMiddleware(socket, next).catch((error) =>
+        console.error(`Auth middleware error for socket ${socket.id}:`, error),
+      )
     })
 
     return server

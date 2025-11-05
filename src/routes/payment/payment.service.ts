@@ -21,24 +21,27 @@ export class PaymentService {
 
   async receiver(body: WebhookPaymentRequestBodyType): Promise<ResponseMessageType> {
     const { userId } = await this.paymentRepository.receiver(body)
+    const successMessage = {
+      message: 'Pay for orders successfully!!!',
+    }
 
     if (USE_SOCKET_ROOM) {
-      // Phát sự kiện ra socket room của user
-      const userRoom = generateSocketRoomName(userId)
-      this.webSocketServer.to(userRoom).emit(SUCCESS_PAYMENT_EVENT, {
-        message: 'Pay for orders successfully!!!',
-      })
+      try {
+        // Phát sự kiện ra socket room của user
+        const userRoom = generateSocketRoomName(userId)
+        this.webSocketServer.to(userRoom).emit(SUCCESS_PAYMENT_EVENT, successMessage)
+      } catch (error) {
+        console.error('>>> Failed to emit payment event to room:', error)
+      }
     } else {
       try {
         const userWebsockets = await this.sharedUserSocketRepository.findByUserId(userId)
         userWebsockets.forEach((item) => {
           // Emit event ở namespace `/payment`
-          this.webSocketServer.to(item.id).emit(SUCCESS_PAYMENT_EVENT, {
-            message: 'Pay for orders successfully!!!',
-          })
+          this.webSocketServer.to(item.id).emit(SUCCESS_PAYMENT_EVENT, successMessage)
         })
       } catch (error) {
-        console.error('>>> Fail to emit successful-payment event: ', error)
+        console.error('>>> Failed to emit payment event to user sockets:', error)
       }
     }
 

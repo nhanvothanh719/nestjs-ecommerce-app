@@ -11,7 +11,7 @@ import { PrismaService } from 'src/shared/services/prisma.service'
 export class PaymentRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async receiver(body: WebhookPaymentRequestBodyType): Promise<ResponseMessageType> {
+  async receiver(body: WebhookPaymentRequestBodyType): Promise<ResponseMessageType & { paymentId: number }> {
     const {
       transferType,
       transferAmount,
@@ -103,7 +103,7 @@ export class PaymentRepository {
       }),
     ])
 
-    return { message: 'Successfully payment' }
+    return { paymentId, message: 'Successful payment' }
   }
 
   private getOrdersTotalPrice(orders: OrderWithProductSKUSnapshotsType[]): number {

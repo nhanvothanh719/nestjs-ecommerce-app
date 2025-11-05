@@ -8,8 +8,11 @@ async function bootstrap() {
 
   app.enableCors()
 
+  const customWebsocketAdapter = new CustomWebsocketAdapter(app)
+  await customWebsocketAdapter.initRedisAdapter()
+
   // Apply custom websocket adapter
-  app.useWebSocketAdapter(new CustomWebsocketAdapter(app))
+  app.useWebSocketAdapter(customWebsocketAdapter)
 
   await app.listen(process.env.PORT ?? 3000)
 }

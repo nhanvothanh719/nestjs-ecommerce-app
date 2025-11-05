@@ -6,15 +6,30 @@ import { USE_SOCKET_ROOM } from 'src/shared/constants/others.constants'
 import { generateSocketRoomName } from 'src/shared/helpers'
 import { SharedUserSocketRepository } from 'src/shared/repositories/user-socket.repo'
 import { TokenService } from 'src/shared/services/token.service'
+import { createAdapter } from '@socket.io/redis-adapter'
+import { createClient } from 'redis'
 
 export class CustomWebsocketAdapter extends IoAdapter {
   private readonly sharedUserSocketRepository: SharedUserSocketRepository
   private readonly tokenService: TokenService
+  private adapterConstructor: ReturnType<typeof createAdapter>
 
   constructor(app: INestApplicationContext) {
     super()
     this.sharedUserSocketRepository = app.get(SharedUserSocketRepository)
     this.tokenService = app.get(TokenService)
+  }
+
+  async initRedisAdapter() {
+    // Tạo Redis client (pub/sub)
+    const pubClient = createClient({ socket: { host: envConfig.REDIS_HOST, port: envConfig.REDIS_PORT } })
+    const subClient = pubClient.duplicate()
+
+    // Kết nối song song cả 2 client
+    await Promise.all([pubClient.connect(), subClient.connect()])
+
+    // Tạo adapter constructor dùng cho socket.io
+    this.adapterConstructor = createAdapter(pubClient, subClient)
   }
 
   createIOServer(port: number, options?: ServerOptions) {

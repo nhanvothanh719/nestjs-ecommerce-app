@@ -26,7 +26,7 @@ export class PaymentService {
       // Phát sự kiện ra socket room của user
       const userRoom = generateSocketRoomName(userId)
       this.webSocketServer.to(userRoom).emit(SUCCESS_PAYMENT_EVENT, {
-        message: 'Pay for orders successfully',
+        message: 'Pay for orders successfully!!!',
       })
     } else {
       try {
@@ -34,7 +34,7 @@ export class PaymentService {
         userWebsockets.forEach((item) => {
           // Emit event ở namespace `/payment`
           this.webSocketServer.to(item.id).emit(SUCCESS_PAYMENT_EVENT, {
-            message: 'Pay for orders successfully',
+            message: 'Pay for orders successfully!!!',
           })
         })
       } catch (error) {

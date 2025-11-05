@@ -15,6 +15,7 @@ import {
   GetPaginatedOrdersListRequestQueryType,
   GetPaginatedOrdersListResponseType,
 } from 'src/routes/order/order.model'
+import { OrderProducer } from 'src/routes/order/order.producer'
 import { OrderStatus } from 'src/shared/constants/order.constant'
 import { PaymentStatus } from 'src/shared/constants/payment.constant'
 import { NotFoundRecordException } from 'src/shared/error'
@@ -23,7 +24,10 @@ import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()
 export class OrderRepository {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly orderProducer: OrderProducer,
+  ) {}
 
   async getPaginatedList(
     userId: number,
@@ -205,7 +209,15 @@ export class OrderRepository {
         }),
       )
 
-      const [createdOrders] = await Promise.all([$createOrders, $deleteCartItems, $updateQuantitySKU])
+      // Add job
+      const $addCancelPaymentJob = this.orderProducer.addCancelPaymentJob(payment.id)
+
+      const [createdOrders] = await Promise.all([
+        $createOrders,
+        $deleteCartItems,
+        $updateQuantitySKU,
+        $addCancelPaymentJob,
+      ])
       return [payment.id, createdOrders]
     })
 

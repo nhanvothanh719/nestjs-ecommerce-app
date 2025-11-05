@@ -31,3 +31,7 @@ export const generateFileName = (filename: string): string => {
 export const generateCancelPaymentJobId = (paymentId: number) => {
   return `cancel-payment-job-${paymentId}`
 }
+
+export const generateSocketRoomName = (userId: number) => {
+  return `userId-${userId}`
+}

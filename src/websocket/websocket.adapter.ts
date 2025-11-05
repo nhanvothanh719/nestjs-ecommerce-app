@@ -1,6 +1,9 @@
 import { INestApplicationContext } from '@nestjs/common'
 import { IoAdapter } from '@nestjs/platform-socket.io'
 import { Server, ServerOptions, Socket } from 'socket.io'
+import envConfig from 'src/shared/config'
+import { USE_SOCKET_ROOM } from 'src/shared/constants/others.constants'
+import { generateSocketRoomName } from 'src/shared/helpers'
 import { SharedUserSocketRepository } from 'src/shared/repositories/user-socket.repo'
 import { TokenService } from 'src/shared/services/token.service'
 
@@ -15,9 +18,9 @@ export class CustomWebsocketAdapter extends IoAdapter {
   }
 
   createIOServer(port: number, options?: ServerOptions) {
-    const RUN_PORT = 3003
+    const websocketPort: number = envConfig.WEBSOCKET_PORT ?? 3001
 
-    const server: Server = super.createIOServer(RUN_PORT, {
+    const server: Server = super.createIOServer(websocketPort, {
       ...options,
       cors: {
         origin: '*',
@@ -55,13 +58,22 @@ export class CustomWebsocketAdapter extends IoAdapter {
 
     try {
       const { userId } = await this.tokenService.verifyAccessToken(accessToken)
-      await this.sharedUserSocketRepository.create({ socketId: socket.id, userId })
 
-      socket.on('disconnect', async () => {
-        console.log(`>>> Client disconnected: ${socket.id}`)
+      if (USE_SOCKET_ROOM) {
+        // Join socket room
+        const userRoom = generateSocketRoomName(userId)
+        await socket.join(userRoom)
 
-        await this.sharedUserSocketRepository.delete(socket.id).catch(() => {})
-      })
+        // Khi client disconnect --> rời room
+      } else {
+        await this.sharedUserSocketRepository.create({ socketId: socket.id, userId })
+
+        socket.on('disconnect', async () => {
+          console.log(`>>> Client disconnected: ${socket.id}`)
+
+          await this.sharedUserSocketRepository.delete(socket.id).catch(() => {})
+        })
+      }
 
       // Cho phép xử lý tiếp
       next()

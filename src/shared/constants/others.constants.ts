@@ -11,3 +11,7 @@ export const ProductSortField = {
 
 export type OrderByType = (typeof OrderBy)[keyof typeof OrderBy]
 export type ProductSortFieldType = (typeof ProductSortField)[keyof typeof ProductSortField]
+
+// Websocket constants
+export const USE_SOCKET_ROOM = true
+export const SUCCESS_PAYMENT_EVENT = 'successful-payment'

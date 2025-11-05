@@ -13,6 +13,7 @@ export class PaymentRepository {
 
   async receiver(body: WebhookPaymentRequestBodyType): Promise<ResponseMessageType & { paymentId: number }> {
     const {
+      id,
       transferType,
       transferAmount,
       gateway,
@@ -36,9 +37,16 @@ export class PaymentRepository {
       amountOut = transferAmount
     }
 
+    // Kiểm tra transaction để tránh việc retry làm thay đổi kết quả từ server Sepay
+    const paymentTransaction = await this.prismaService.paymentTransaction.findUnique({
+      where: { id },
+    })
+    if (paymentTransaction) throw new BadRequestException('Transaction already exists')
+
     // Lưu vào database
     await this.prismaService.paymentTransaction.create({
       data: {
+        id,
         gateway,
         transactionDate: parse(transactionDate, 'yyyy-MM-dd HH:mm:ss', new Date()),
         accountNumber,

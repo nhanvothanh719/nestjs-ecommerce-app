@@ -22,7 +22,9 @@ export class CustomWebsocketAdapter extends IoAdapter {
 
   async initRedisAdapter() {
     // Tạo Redis client (pub/sub)
+    // pubClient: dùng để publish các sự kiện (emit, broadcast…)
     const pubClient = createClient({ socket: { host: envConfig.REDIS_HOST, port: envConfig.REDIS_PORT } })
+    // subClient: dùng để subscribe và lắng nghe các sự kiện từ các server khác.
     const subClient = pubClient.duplicate()
 
     // Kết nối song song cả 2 client

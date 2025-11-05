@@ -1,9 +1,8 @@
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets'
 import { Server } from 'socket.io'
 
-const CHAT_NAMESPACE_PORT = 3003
-// MEMO: namespace acts as route: `http://localhost:3003/chat`
-@WebSocketGateway(CHAT_NAMESPACE_PORT, { namespace: 'chat' })
+// MEMO: namespace acts as route: `/chat`
+@WebSocketGateway({ namespace: 'chat' })
 export class ChatGateway {
   @WebSocketServer()
   server: Server

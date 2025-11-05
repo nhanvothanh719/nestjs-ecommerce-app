@@ -5,6 +5,12 @@ import { PrismaService } from 'src/shared/services/prisma.service'
 export class SharedUserSocketRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
+  findByUserId(userId: number) {
+    return this.prismaService.userSocket.findMany({
+      where: { userId },
+    })
+  }
+
   create({ socketId, userId }: { socketId: string; userId: number }) {
     return this.prismaService.userSocket.create({
       data: {

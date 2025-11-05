@@ -28,11 +28,15 @@ export class CustomWebsocketAdapter extends IoAdapter {
     // Apply `authMiddleware` for default namespace (`/`)
     server.use((socket, next) => {
       this.authMiddleware(socket, next)
+        .then(() => {})
+        .catch(() => {})
     })
 
     // Apply `authMiddleware` for other namespaces
     server.of(/.*/).use((socket, next) => {
       this.authMiddleware(socket, next)
+        .then(() => {})
+        .catch(() => {})
     })
 
     return server

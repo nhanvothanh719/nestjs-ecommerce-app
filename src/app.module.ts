@@ -60,8 +60,14 @@ import { ThrottlerBehindProxyGuard } from 'src/shared/guards/throttler-behind-pr
     ThrottlerModule.forRoot({
       throttlers: [
         {
+          name: 'allow-10-request-per-minute',
           ttl: 60 * 1000, // 1 min
           limit: 10,
+        },
+        {
+          name: 'allow-15-request-per-2-minutes',
+          ttl: 2 * 60 * 1000, // 2 min
+          limit: 15,
         },
       ],
     }),

@@ -28,7 +28,8 @@ import path from 'path'
 import envConfig from 'src/shared/config'
 import { PaymentConsumer } from 'src/queues/payment.consumer'
 import { WebsocketModule } from './websocket/websocket.module'
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
+import { ThrottlerModule } from '@nestjs/throttler'
+import { ThrottlerBehindProxyGuard } from 'src/shared/guards/throttler-behind-proxy.guard'
 
 @Module({
   imports: [
@@ -100,7 +101,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
     },
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: ThrottlerBehindProxyGuard,
     },
     PaymentConsumer,
   ],

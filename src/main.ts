@@ -14,6 +14,10 @@ async function bootstrap() {
   // Apply custom websocket adapter
   app.useWebSocketAdapter(customWebsocketAdapter)
 
+  // Kích hoạt trust proxy cho rate limit đúng IP
+  // Áp dụng rate limit để đọc đúng client IP từ headers, tránh limiter nhầm lẫn IP proxy
+  app.set('trust proxy', 'loopback')
+
   await app.listen(process.env.PORT ?? 3000)
 }
 bootstrap()

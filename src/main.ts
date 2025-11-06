@@ -14,6 +14,9 @@ async function bootstrap() {
   // Apply custom websocket adapter
   app.useWebSocketAdapter(customWebsocketAdapter)
 
+  // Đảm bảo limiter sử dụng IP thật để đếm requests chính xác
+  app.set('trust proxy', 'loopback')
+
   await app.listen(process.env.PORT ?? 3000)
 }
 bootstrap()

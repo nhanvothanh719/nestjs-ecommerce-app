@@ -4,8 +4,17 @@ import { HTTPMethod } from 'src/shared/constants/permission.constant'
 import { RoleName } from 'src/shared/constants/role.constant'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
-const SELLER_MODULES = ['auth', 'media', 'product-management', 'product-translations', 'profile', 'cart', 'orders']
-const CLIENT_MODULES = ['auth', 'media', 'profile', 'cart', 'orders']
+const SELLER_MODULES = [
+  'auth',
+  'media',
+  'product-management',
+  'product-translations',
+  'profile',
+  'cart',
+  'orders',
+  'reviews',
+]
+const CLIENT_MODULES = ['auth', 'media', 'profile', 'cart', 'orders', 'reviews']
 
 const prismaService = new PrismaService()
 

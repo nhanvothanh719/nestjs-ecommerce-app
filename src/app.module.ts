@@ -3,7 +3,7 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { SharedModule } from './shared/shared.module'
 import { AuthModule } from 'src/routes/auth/auth.module'
-import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import CustomZodValidationPipe from 'src/shared/pipes/custom-zod-validation.pipe'
 import { ZodSerializerInterceptor } from 'nestjs-zod'
 import { HttpExceptionFilter } from 'src/shared/filters/http-exception.filter'
@@ -27,7 +27,10 @@ import { BullModule } from '@nestjs/bullmq'
 import path from 'path'
 import envConfig from 'src/shared/config'
 import { PaymentConsumer } from 'src/queues/payment.consumer'
-import { WebsocketModule } from './websocket/websocket.module';
+import { WebsocketModule } from './websocket/websocket.module'
+import { ThrottlerModule } from '@nestjs/throttler'
+import { ThrottlerBehindProxyGuard } from 'src/shared/guards/throttler-behind-proxy.guard'
+import { ReviewModule } from './routes/review/review.module';
 
 @Module({
   imports: [
@@ -55,6 +58,20 @@ import { WebsocketModule } from './websocket/websocket.module';
       // [Optional] Type safety: Build ra tại file `src/generated/i18n.generated.ts` --> Gợi ý code
       typesOutputPath: path.resolve('src/generated/i18n.generated.ts'),
     }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          name: 'allow-10-request-per-minute',
+          ttl: 60 * 1000, // 1 min
+          limit: 10,
+        },
+        {
+          name: 'allow-15-request-per-2-minutes',
+          ttl: 2 * 60 * 1000, // 2 min
+          limit: 15,
+        },
+      ],
+    }),
     SharedModule,
     AuthModule,
     LanguageModule,
@@ -73,6 +90,7 @@ import { WebsocketModule } from './websocket/websocket.module';
     OrderModule,
     PaymentModule,
     WebsocketModule,
+    ReviewModule,
   ],
   controllers: [AppController],
   providers: [
@@ -88,6 +106,10 @@ import { WebsocketModule } from './websocket/websocket.module';
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerBehindProxyGuard,
     },
     PaymentConsumer,
   ],
